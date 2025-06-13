@@ -7,6 +7,5 @@ import shop.wannab.userservice.user.domain.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
    Boolean existsByUsername(String username);
 
-
-   List<User> findByUsername(String username);
+   User findByUsername(String username);
 }
