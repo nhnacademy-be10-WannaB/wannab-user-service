@@ -1,6 +1,9 @@
 package shop.wannab.userservice.user.controller;
 
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +23,17 @@ public class AuthController {
     public ResponseEntity<CommonResponse<String>> login(@RequestBody UserLoginDTO userLoginDTO) {
         CommonResponse<String> response = new CommonResponse<>();
         String jwt = userService.login(userLoginDTO.getUsername(), userLoginDTO.getPassword());
+        ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Strict")
+                .maxAge(Duration.ofMinutes(30))
+                .build();
         response.setData(jwt);
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
     }
 }
