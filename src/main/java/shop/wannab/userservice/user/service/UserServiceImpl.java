@@ -13,6 +13,7 @@ import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserRepository;
+import shop.wannab.userservice.util.JwtUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +56,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(UserUpdateDTO userupdateDTO) {
 
+    }
+
+    @Override
+    public String login(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        if(user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            return JwtUtil.createAccessToken(user.getUserId(), user.getRole().name());
+        } else {
+            throw new UserNotFoundException();
+        }
     }
 
 

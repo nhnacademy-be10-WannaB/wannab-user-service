@@ -11,5 +11,5 @@ public interface UserService {
 
     void updateUser(UserUpdateDTO userupdateDTO);
 
-
+    String login(String username, String password);
 }

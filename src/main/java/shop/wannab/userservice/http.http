@@ -3,9 +3,18 @@ Content-Type: application/json
 
 {
     "username":"dang",
-    "password":"1234",
+    "password":"aaaa1111@",
     "name":"kim",
     "email":"d@naver.com",
     "phone":"01012345678",
     "birth":"2000-06-13"
+}
+
+### jwt 토큰 발급 테스트(로그인 체크X)
+POST http://localhost:8082/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "dang",
+  "password": "aaaa1111@"
 }
