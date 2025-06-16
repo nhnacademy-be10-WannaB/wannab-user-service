@@ -23,7 +23,7 @@ public class AuthController {
     public ResponseEntity<CommonResponse<String>> login(@RequestBody UserLoginDTO userLoginDTO) {
         CommonResponse<String> response = new CommonResponse<>();
         String jwt = userService.login(userLoginDTO.getUsername(), userLoginDTO.getPassword());
-        ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+        ResponseCookie cookie = ResponseCookie.from("access_token", jwt)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
