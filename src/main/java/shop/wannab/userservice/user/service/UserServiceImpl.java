@@ -17,7 +17,7 @@ import shop.wannab.userservice.utils.JwtUtil;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    public void createUser(UserCreateDTO userCreateDTO) {
+    public User createUser(UserCreateDTO userCreateDTO) {
         if (userRepository.existsByUsername(userCreateDTO.username())) {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
         }
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
                 .phone(userCreateDTO.phone())
                 .birth(userCreateDTO.birth())
                 .build();
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(long userId, UserUpdateDTO userupdateDTO) {
+    public User updateUser(long userId, UserUpdateDTO userupdateDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
         user.setName(userupdateDTO.name());
@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userupdateDTO.phone());
         user.setNickname(userupdateDTO.nickname());
         user.setPassword(userupdateDTO.password());
+        return userRepository.save(user);
     }
 
     @Override

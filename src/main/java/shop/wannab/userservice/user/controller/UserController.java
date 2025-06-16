@@ -1,6 +1,7 @@
 package shop.wannab.userservice.user.controller;
 
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,9 +28,10 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
-        userService.createUser(userCreateDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+        User user = userService.createUser(userCreateDTO);
+        URI uri = URI.create("/api/users/" + user.getUserId());
+        return ResponseEntity.created(uri).body(user);
     }
 
     @GetMapping("/{user-id}")
@@ -43,14 +45,14 @@ public class UserController {
     }
 
     @PatchMapping("/{user-id}")
-    public ResponseEntity<Void> updateUser(@PathVariable(name = "user-id") String userId,
+    public ResponseEntity<User> updateUser(@PathVariable(name = "user-id") String userId,
                                            @RequestHeader(Util.HEADER_ID_NAME) String headerUserId,
                                            @RequestBody @Valid UserUpdateDTO userupdateDTO) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        userService.updateUser(Long.parseLong(userId), userupdateDTO);
-        return ResponseEntity.ok().build();
+        User user = userService.updateUser(Long.parseLong(userId), userupdateDTO);
+        return ResponseEntity.ok().body(user);
     }
 
     @DeleteMapping("/{user-id}")
@@ -60,6 +62,6 @@ public class UserController {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
         userService.deleteUser(Long.parseLong(userId));
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
