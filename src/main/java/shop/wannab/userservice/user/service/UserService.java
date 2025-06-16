@@ -16,4 +16,6 @@ public interface UserService {
     String generateAccessToken(long userId, String userRole);
 
     String generateRefreshToken(long userId, String userRole);
+
+    void saveRefreshToken(String refreshToken, Long userId);
 }
