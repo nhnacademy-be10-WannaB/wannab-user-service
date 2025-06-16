@@ -9,7 +9,9 @@ public interface UserService {
 
     User readUser(long userId);
 
-    void updateUser(UserUpdateDTO userupdateDTO);
+    void updateUser(long userId, UserUpdateDTO userupdateDTO);
 
     String login(String username, String password);
+
+    void deleteUser(long userId);
 }
