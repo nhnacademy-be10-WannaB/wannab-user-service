@@ -11,5 +11,9 @@ public interface UserService {
 
     void updateUser(UserUpdateDTO userupdateDTO);
 
-    String login(String username, String password);
+    User login(String username, String password);
+
+    String generateAccessToken(long userId, String userRole);
+
+    String generateRefreshToken(long userId, String userRole);
 }

@@ -59,13 +59,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(String username, String password) {
+    public User login(String username, String password) {
         User user = userRepository.findByUsername(username);
-        if(user.getUsername().equals(username) && user.getPassword().equals(password)) {
-            return JwtUtil.createAccessToken(user.getUserId(), user.getRole().name());
+        if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            return user;
         } else {
             throw new UserNotFoundException();
         }
+    }
+
+    @Override
+    public String generateAccessToken(long userId, String userRole) {
+        return JwtUtil.createAccessToken(userId, userRole);
+    }
+
+    @Override
+    public String generateRefreshToken(long userId, String userRole) {
+        return JwtUtil.createRefreshToken(userId, userRole);
     }
 
 
