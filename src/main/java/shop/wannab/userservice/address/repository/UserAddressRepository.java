@@ -10,4 +10,5 @@ import shop.wannab.userservice.user.domain.entity.User;
 public interface UserAddressRepository extends JpaRepository<UserAddress, Long> {
     Optional<UserAddress> findByUserAndAddressId(User user, Long addressId);
 
+    long countByUser(User user);
 }

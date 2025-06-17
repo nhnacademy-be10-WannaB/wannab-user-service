@@ -9,6 +9,7 @@ import shop.wannab.userservice.address.domain.dto.UserAddressCreateRequest;
 import shop.wannab.userservice.address.domain.dto.UserAddressResponse;
 import shop.wannab.userservice.address.domain.dto.UserAddressUpdateRequest;
 import shop.wannab.userservice.address.domain.entity.UserAddress;
+import shop.wannab.userservice.address.exception.UserAddressFullException;
 import shop.wannab.userservice.address.exception.UserAddressNotFoundException;
 import shop.wannab.userservice.address.repository.UserAddressRepository;
 import shop.wannab.userservice.address.service.UserAddressService;
@@ -40,6 +41,11 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Transactional
     public UserAddressResponse findByUserIdAndAddressId(Long userId, Long addressId) {
         User user = userService.readUser(userId);
+
+        long addressCount = userAddressRepository.countByUser(user);
+        if (addressCount >= 10) {
+            throw new UserAddressFullException("주소는 최대 10개까지 등록할 수 있습니다.");
+        }
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);
 
