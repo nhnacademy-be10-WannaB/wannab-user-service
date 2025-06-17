@@ -1,9 +1,7 @@
-package shop.wannab.userservice.util;
+package shop.wannab.userservice.utils;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 
 public class JwtUtil {

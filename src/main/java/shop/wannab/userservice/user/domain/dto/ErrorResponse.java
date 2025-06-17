@@ -9,13 +9,5 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ErrorResponse {
-    private int status;
-    private String code;
-    private String message;
-
-    public ErrorResponse() {
-        this.status = 400;
-        this.code = "미정";
-        this.message = "유효하지 않은 요청입니다";
-    }
+    private String error;
 }

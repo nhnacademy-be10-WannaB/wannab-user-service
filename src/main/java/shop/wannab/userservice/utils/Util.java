@@ -1,4 +1,4 @@
-package shop.wannab.userservice.util;
+package shop.wannab.userservice.utils;
 
 
 import io.jsonwebtoken.security.Keys;

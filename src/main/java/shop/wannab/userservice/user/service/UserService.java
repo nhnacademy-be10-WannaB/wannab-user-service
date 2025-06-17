@@ -5,11 +5,13 @@ import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
 import shop.wannab.userservice.user.domain.entity.User;
 
 public interface UserService {
-    void createUser(UserCreateDTO userCreateDTO);
+    User createUser(UserCreateDTO userCreateDTO);
 
     User readUser(long userId);
 
-    void updateUser(UserUpdateDTO userupdateDTO);
+    User updateUser(long userId, UserUpdateDTO userupdateDTO);
 
     String login(String username, String password);
+
+    void deleteUser(long userId);
 }
