@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.user.domain.dto.UserLoginDTO;
-import shop.wannab.userservice.user.domain.entity.RefreshToken;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.util.Util;
@@ -43,7 +42,7 @@ public class AuthController {
                 .maxAge(Duration.ofDays(7))
                 .build();
 
-        RefreshToken refreshTokenKey = new RefreshToken(refreshToken, user.getUserId());
+        userService.saveRefreshToken(refreshToken, user.getUserId());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())

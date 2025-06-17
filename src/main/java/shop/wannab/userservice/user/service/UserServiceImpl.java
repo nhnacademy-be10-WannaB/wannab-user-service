@@ -3,17 +3,16 @@ package shop.wannab.userservice.user.service;
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
 import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
-import shop.wannab.userservice.user.domain.entity.RefreshToken;
 import shop.wannab.userservice.user.domain.entity.Role;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
-import shop.wannab.userservice.user.repository.RefreshTokenRepository;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.util.JwtUtil;
 
@@ -22,7 +21,9 @@ import shop.wannab.userservice.util.JwtUtil;
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private static final String REFRESH_KEY = "refresh_token:";
 
     public void createUser(UserCreateDTO userCreateDTO) {
         if (userRepository.existsByUsername(userCreateDTO.username())) {
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveRefreshToken(String refreshToken, Long userId) {
-        refreshTokenRepository.save(new RefreshToken(refreshToken, userId));
+        redisTemplate.opsForHash().put(REFRESH_KEY, userId.toString(), refreshToken);
     }
 
 
