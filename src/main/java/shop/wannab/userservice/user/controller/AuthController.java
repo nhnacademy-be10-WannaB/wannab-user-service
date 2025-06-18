@@ -2,14 +2,15 @@ package shop.wannab.userservice.user.controller;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.validation.Valid;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.user.domain.dto.UserLoginDTO;
@@ -24,11 +25,12 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity login(@RequestBody @Valid UserLoginDTO userLoginDTO) {
         User user = userService.login(userLoginDTO.getUsername(), userLoginDTO.getPassword());
 
         String accessToken = userService.generateAccessToken(user.getUserId(), user.getRole().name());
         ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", accessToken)
+                .secure(true)
                 .path("/")
                 .maxAge(Duration.ofMinutes(30))
                 .build();
@@ -51,7 +53,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity refreshAccessToken(@RequestHeader("X-REFRESH-TOKEN") String refreshToken) {
+    public ResponseEntity refreshAccessToken(@CookieValue("refresh_token") String refreshToken) {
         Claims claims = Jwts.parser()
                 .setSigningKey(Util.SECRET)
                 .parseClaimsJws(refreshToken)

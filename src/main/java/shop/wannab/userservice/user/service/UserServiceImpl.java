@@ -13,6 +13,7 @@ import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
+import shop.wannab.userservice.user.exception.UsernameOrPasswordMismatchException;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.util.JwtUtil;
 
@@ -65,10 +66,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(String username, String password) {
         User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
         if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
             return user;
         } else {
-            throw new UserNotFoundException();
+            throw new UsernameOrPasswordMismatchException("사용자 정보가 일치하지 않습니다.");
         }
     }
 
