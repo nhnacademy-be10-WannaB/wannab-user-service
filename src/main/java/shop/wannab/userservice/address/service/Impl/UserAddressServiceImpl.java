@@ -26,7 +26,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional(readOnly = true)
     public List<UserAddressResponse> findByUserId(Long userId) {
-        List<UserAddress> userAddresses = userAddressRepository.findAll();
+        List<UserAddress> userAddresses = userAddressRepository.findAllByUser(userService.readUser(userId));
         return userAddresses.stream()
                 .map(userAddress -> UserAddressResponse.builder()
                         .addressId(userAddress.getAddressId())
