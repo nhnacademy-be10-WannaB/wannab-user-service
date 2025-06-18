@@ -1,17 +1,26 @@
 package shop.wannab.userservice.user.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,28 +28,34 @@ public class User {
     private Long userId;
     @Column(name = "user_password")
     private String password;
-    @Column(name = "user_username")
+    @Column(name = "user_username", unique = true)
     private String username;
     @Column(name = "user_name")
     private String name;
     @Column(name = "user_email")
     private String email;
+    @Builder.Default
     @Column(name = "nickname")
-    private String nickname;
+    private String nickname = "unknown";
     @Column(name = "user_phone")
     private String phone;
     @Column(name = "user_birth")
     private LocalDate birth;
+    @Builder.Default
     @Column(name = "user_create_at")
-    private LocalDate creationAt;
+    private LocalDate creationAt = LocalDate.now();
+    @Builder.Default
     @Column(name = "user_last_login_at")
-    private LocalDate lastLoginAt;
+    private LocalDate lastLoginAt = null;
+    @Builder.Default
     @Column(name = "points")
-    private int points;
+    private int points = 0;
+    @Builder.Default
     @Column(name = "user_role")
-    private Role role;
+    private Role role = Role.USER;
+    @Builder.Default
     @Column(name = "user_state")
-    private State state;
+    private State state = State.ACTIVATE;
     @Column(name = "provider_id")
     private String providerId;
     @Column(name = "provider_name")
@@ -49,32 +64,4 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grade_id")
     private UserGrade userGrade;
-
-    public User(String password,
-                String username,
-                String name,
-                String email,
-                String nickname,
-                String phone,
-                LocalDate birth,
-                LocalDate creationAt,
-                int points,
-                Role role,
-                State state,
-                String providerId,
-                String providerName){
-        this.password = password;
-        this.username = username;
-        this.name = name;
-        this.email = email;
-        this.nickname = nickname;
-        this.phone = phone;
-        this.birth = birth;
-        this.creationAt = creationAt;
-        this.points = points;
-        this.role = role;
-        this.state = state;
-        this.providerId = providerId;
-        this.providerName = providerName;
-    }
 }

@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: userService
+    name: user-service
   profiles:
     active: dev
 

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.user.domain.dto.UserLoginDTO;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
-import shop.wannab.userservice.util.Util;
+import shop.wannab.userservice.utils.Util;
 
 @RestController
 @RequiredArgsConstructor

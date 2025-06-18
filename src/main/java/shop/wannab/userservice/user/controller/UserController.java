@@ -1,22 +1,24 @@
 package shop.wannab.userservice.user.controller;
 
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import shop.wannab.userservice.user.domain.dto.CommonResponse;
-import shop.wannab.userservice.user.domain.dto.Status;
 import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
+import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserIdMismatchException;
 import shop.wannab.userservice.user.service.UserService;
-import shop.wannab.userservice.util.Util;
+import shop.wannab.userservice.utils.Util;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,35 +26,42 @@ import shop.wannab.userservice.util.Util;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping()
-    public ResponseEntity<CommonResponse<?>> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
-        CommonResponse<?> response = new CommonResponse<>();
-        userService.createUser(userCreateDTO);
-        return ResponseEntity.ok().body(response);
+
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+        User user = userService.createUser(userCreateDTO);
+        URI uri = URI.create("/api/users/" + user.getUserId());
+        return ResponseEntity.created(uri).body(user);
     }
 
     @GetMapping("/{user-id}")
-    public ResponseEntity<CommonResponse<User>> readUser(@PathVariable(name = "user-id") String userId,
-                                                         @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
+    public ResponseEntity<User> readUser(@PathVariable(name = "user-id") String userId,
+                                         @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
         if (!userId.equals(headerUserId)) {
-            throw new UserIdMismatchException();
+            throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        CommonResponse<User> response = new CommonResponse<>(
-                Status.SUCCESS,
-                userService.readUser(Long.parseLong(userId)),
-                null);
-        return ResponseEntity.ok().body(response);
+        User user = userService.readUser(Long.parseLong(userId));
+        return ResponseEntity.ok().body(user);
     }
 
-//    @PatchMapping("/{user-id}")
-//    public ResponseEntity<CommonResponse<?>> updateUser(@PathVariable(name = "user-id") String userId,
-//                                                        @RequestHeader(Util.HEADER_ID_NAME) String headerUserId,
-//                                                        @RequestBody @Valid UserUpdateDTO userupdateDTO) {
-//        if (!userId.equals(headerUserId)) {
-//            throw new UserIdMismatchException();
-//        }
-//        userService.updateUser(userupdateDTO);
-//    }
+    @PatchMapping("/{user-id}")
+    public ResponseEntity<User> updateUser(@PathVariable(name = "user-id") String userId,
+                                           @RequestHeader(Util.HEADER_ID_NAME) String headerUserId,
+                                           @RequestBody @Valid UserUpdateDTO userupdateDTO) {
+        if (!userId.equals(headerUserId)) {
+            throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
+        }
+        User user = userService.updateUser(Long.parseLong(userId), userupdateDTO);
+        return ResponseEntity.ok().body(user);
+    }
 
-
+    @DeleteMapping("/{user-id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable(name = "user-id") String userId,
+                                           @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
+        if (!userId.equals(headerUserId)) {
+            throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
+        }
+        userService.deleteUser(Long.parseLong(userId));
+        return ResponseEntity.noContent().build();
+    }
 }
