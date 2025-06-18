@@ -1,10 +1,10 @@
 package shop.wannab.userservice.address.service.Impl;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.address.domain.dto.UserAddressCreateRequest;
 import shop.wannab.userservice.address.domain.dto.UserAddressResponse;
 import shop.wannab.userservice.address.domain.dto.UserAddressUpdateRequest;
@@ -24,7 +24,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     private final UserService userService;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserAddressResponse> findByUserId(Long userId) {
         List<UserAddress> userAddresses = userAddressRepository.findAll();
         return userAddresses.stream()
@@ -38,7 +38,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserAddressResponse findByUserIdAndAddressId(Long userId, Long addressId) {
         User user = userService.readUser(userId);
 
