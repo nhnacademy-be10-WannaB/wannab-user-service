@@ -5,7 +5,7 @@ spring:
   application:
     name: user-service
   profiles:
-    active: dev
+    active: prod
 
   jpa:
     open-in-view: false
@@ -17,3 +17,4 @@ spring:
         highlight_sql: true
         auto_quote_keyword: true
         globally_quoted_identifiers: true
+
