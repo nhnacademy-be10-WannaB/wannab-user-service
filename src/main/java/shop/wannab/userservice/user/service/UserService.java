@@ -12,7 +12,13 @@ public interface UserService {
 
     User updateUser(long userId, UserUpdateDTO userupdateDTO);
 
-    String login(String username, String password);
+    User login(String username, String password);
+
+    String generateAccessToken(long userId, String userRole);
+
+    String generateRefreshToken(long userId, String userRole);
+
+    void saveRefreshToken(String refreshToken, Long userId);
 
     void deleteUser(long userId);
 

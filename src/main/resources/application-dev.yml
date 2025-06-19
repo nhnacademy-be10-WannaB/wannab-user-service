@@ -15,6 +15,14 @@ spring:
   sql:
     init:
       mode: always
+  config:
+    import: optional:classpath:properties/env.properties
+  data:
+    redis:
+      host: ${redis.host}
+      port: 6379
+      password: ${redis.password}
+      database: 320
 
 logging:
   level:

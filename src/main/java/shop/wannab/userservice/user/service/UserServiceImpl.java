@@ -1,6 +1,7 @@
 package shop.wannab.userservice.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
@@ -11,6 +12,7 @@ import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserGradeRepository;
+import shop.wannab.userservice.user.exception.UsernameOrPasswordMismatchException;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
 
@@ -21,6 +23,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserGradeRepository userGradeRepository;
     private final CartClient cartClient;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private static final String REFRESH_KEY = "refresh_token:";
 
     public User createUser(UserCreateDTO userCreateDTO) {
         if (userRepository.existsByUsername(userCreateDTO.username())) {
@@ -85,12 +89,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(String username, String password) {
+    public User login(String username, String password) {
         User user = userRepository.findByUsername(username);
-        if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-            return JwtUtil.createAccessToken(user.getUserId(), user.getRole().name());
-        } else {
+        if (user == null) {
             throw new UserNotFoundException();
         }
+        if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            return user;
+        } else {
+            throw new UsernameOrPasswordMismatchException("사용자 정보가 일치하지 않습니다.");
+        }
     }
+
+
+    @Override
+    public String generateAccessToken(long userId, String userRole) {
+        return JwtUtil.createAccessToken(userId, userRole);
+    }
+
+    @Override
+    public String generateRefreshToken(long userId, String userRole) {
+        return JwtUtil.createRefreshToken(userId, userRole);
+    }
+
+    @Override
+    public void saveRefreshToken(String refreshToken, Long userId) {
+        redisTemplate.opsForHash().put(REFRESH_KEY, userId.toString(), refreshToken);
+    }
+
 }

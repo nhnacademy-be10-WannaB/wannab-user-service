@@ -101,3 +101,40 @@ Content-Type: application/json
   "username": "dang",
   "password": "aaaa1111@"
 }
+
+
+### 주소 생성
+POST http://localhost:8082/api/users/1/addresses
+X-USER-ID: 1
+Content-Type: application/json
+
+{
+  "addressName": "우리집",
+  "address": "서울특별시 송파구 올림픽로",
+  "detailAddress": "101동 101호"
+}
+
+### 전체 주소 조회
+GET http://localhost:8082/api/users/1/addresses
+X-USER-ID: 1
+Content-Type: application/json
+
+### 특정 주소 조회
+GET http://localhost:8082/api/users/1/addresses/1
+X-USER-ID: 1
+Content-Type: application/json
+
+### 주소 수정
+PUT http://localhost:8082/api/users/1/addresses/1
+X-USER-ID: 1
+Content-Type: application/json
+
+{
+  "addressName": "회사",
+  "address": "서울특별시 강남구 테헤란로",
+  "detailAddress": "202동 202호"
+}
+
+### 주소 삭제
+DELETE http://localhost:8082/api/users/1/addresses/1
+X-USER-ID: 1
