@@ -35,33 +35,33 @@ public class UserController {
     }
 
     @GetMapping("/{user-id}")
-    public ResponseEntity<User> readUser(@PathVariable(name = "user-id") String userId,
-                                         @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
+    public ResponseEntity<User> readUser(@PathVariable(name = "user-id") Long userId,
+                                         @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        User user = userService.readUser(Long.parseLong(userId));
+        User user = userService.readUser(userId);
         return ResponseEntity.ok().body(user);
     }
 
     @PatchMapping("/{user-id}")
-    public ResponseEntity<User> updateUser(@PathVariable(name = "user-id") String userId,
-                                           @RequestHeader(Util.HEADER_ID_NAME) String headerUserId,
+    public ResponseEntity<User> updateUser(@PathVariable(name = "user-id") Long userId,
+                                           @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId,
                                            @RequestBody @Valid UserUpdateDTO userupdateDTO) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        User user = userService.updateUser(Long.parseLong(userId), userupdateDTO);
+        User user = userService.updateUser(userId, userupdateDTO);
         return ResponseEntity.ok().body(user);
     }
 
     @DeleteMapping("/{user-id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable(name = "user-id") String userId,
-                                           @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
+    public ResponseEntity<Void> deleteUser(@PathVariable(name = "user-id") Long userId,
+                                           @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        userService.deleteUser(Long.parseLong(userId));
+        userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 }

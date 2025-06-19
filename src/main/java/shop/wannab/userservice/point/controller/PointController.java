@@ -31,53 +31,53 @@ public class PointController {
     private final PointPolicyService pointPolicyService;
 
     @GetMapping("/api/users/{user-id}/points")
-    public ResponseEntity<Integer> readPoints(@PathVariable(name = "user-id") String userId,
-                                              @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
+    public ResponseEntity<Integer> readPoints(@PathVariable(name = "user-id") Long userId,
+                                              @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        int points = userService.readPoint(Long.parseLong(userId));
+        int points = userService.readPoint(userId);
         return ResponseEntity.ok(points);
     }
 
     @PostMapping("/api/users/{user-id}/points")
-    public ResponseEntity<Void> updatePoint(@PathVariable(name = "user-id") String userId,
-                                            @RequestHeader(Util.HEADER_ID_NAME) String headerUserId,
+    public ResponseEntity<Void> updatePoint(@PathVariable(name = "user-id") Long userId,
+                                            @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId,
                                             @RequestBody @Valid PointUpdateDTO pointUpdateDTO) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        userService.updatePoint(Long.parseLong(userId), pointUpdateDTO);
+        userService.updatePoint(userId, pointUpdateDTO);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/api/users/{user-id}/points-histories")
-    public ResponseEntity<PointHistory> createPointHistory(@PathVariable(name = "user-id") String userId,
-                                                           @RequestHeader(Util.HEADER_ID_NAME) String headerUserId,
+    public ResponseEntity<PointHistory> createPointHistory(@PathVariable(name = "user-id") Long userId,
+                                                           @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId,
                                                            @RequestBody @Valid PointHistoryCreateDTO pointHistoryCreateDTO) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        PointHistory pointHistory = pointHistoryService.createPointHistory(Long.parseLong(userId),
+        PointHistory pointHistory = pointHistoryService.createPointHistory(userId,
                 pointHistoryCreateDTO);
         URI uri = URI.create("/api/users/" + userId + "/point-histories");
         return ResponseEntity.created(uri).body(pointHistory);
     }
 
     @GetMapping("/api/users/{user-id}/point-histories")
-    public ResponseEntity<List<PointHistory>> readPointHistory(@PathVariable(name = "user-id") String userId,
-                                                               @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
+    public ResponseEntity<List<PointHistory>> readPointHistory(@PathVariable(name = "user-id") Long userId,
+                                                               @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId) {
         if (!userId.equals(headerUserId)) {
             throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
         }
-        List<PointHistory> pointHistories = pointHistoryService.readPointHistories(Long.parseLong(userId));
+        List<PointHistory> pointHistories = pointHistoryService.readPointHistories(userId);
         return ResponseEntity.ok(pointHistories);
     }
 
     @PutMapping("/api/reward-rates/{reward-rate-id}")
-    public ResponseEntity<PointPolicy> updatePointPolicy(@PathVariable(name = "reward-rate-id") String rewardRateId,
+    public ResponseEntity<PointPolicy> updatePointPolicy(@PathVariable(name = "reward-rate-id") Long rewardRateId,
                                                          @RequestBody @Valid PointPolicyUpdateDTO pointPolicyUpdateDTO) {
-        PointPolicy pointPolicy = pointPolicyService.updatePointPolicy(Long.parseLong(rewardRateId),
+        PointPolicy pointPolicy = pointPolicyService.updatePointPolicy(rewardRateId,
                 pointPolicyUpdateDTO);
         return ResponseEntity.ok(pointPolicy);
     }
