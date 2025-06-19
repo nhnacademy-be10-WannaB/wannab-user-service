@@ -34,6 +34,65 @@ Content-Type: application/json
 X-USER-ID: 1
 
 
+###
+POST http://localhost:8082/api/users/1/points
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "amount": 1000
+}
+
+###
+GET http://localhost:8082/api/users/1/points
+Content-Type: application/json
+X-USER-ID: 1
+
+###
+POST http://localhost:8082/api/users/1/points-histories
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "leftPoints": 200,
+  "orderId": 1,
+  "pointChange": 200,
+  "pointReason": "test1",
+  "userId": "1"
+}
+
+###
+POST http://localhost:8082/api/users/1/points-histories
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "leftPoints": 1200,
+  "orderId": 1,
+  "pointChange": 1000,
+  "pointReason": "test2",
+  "userId": "1"
+}
+
+###
+GET http://localhost:8082/api/users/1/point-histories
+Content-Type: application/json
+X-USER-ID: 1
+
+###
+PUT http://localhost:8082/api/reward-rates/1
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "id": 1,
+  "name": "새 정책",
+  "addPoint": 0,
+  "addRate": 7
+}
+
+
+
 ### jwt 토큰 발급 테스트(로그인 체크X)
 POST http://localhost:8082/api/auth/login
 Content-Type: application/json
