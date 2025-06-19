@@ -1,11 +1,19 @@
 server:
   port: 8082
+  shutdown: graceful
 
 spring:
   application:
     name: user-service
   profiles:
     active: dev
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
 
   
   jpa:
@@ -18,3 +26,7 @@ spring:
         highlight_sql: true
         auto_quote_keyword: true
         globally_quoted_identifiers: true
+
+eureka:
+  client:
+    enabled: false
