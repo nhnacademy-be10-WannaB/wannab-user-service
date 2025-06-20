@@ -57,4 +57,3 @@ jobs:
                  "text": "❌ 빌드 또는 테스트 실패..."
                }' \
                "${{ secrets.DOORAY_WEBHOOK_URL }}"
-
