@@ -1,0 +1,140 @@
+POST http://localhost:8082/api/users
+Content-Type: application/json
+
+{
+  "username": "dang",
+  "password": "aaaa1111@",
+  "name": "kim",
+  "email": "d@naver.com",
+  "phone": "01012345678",
+  "birth": "2000-06-13"
+}
+
+###
+GET http://localhost:8082/api/users/1
+Content-Type: application/json
+X-USER-ID: 1
+
+###
+PATCH http://localhost:8082/api/users/1
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "password": "Abcd1234!",
+  "name": "홍길동",
+  "email": "hong@example.com",
+  "nickname": "길동이",
+  "phone": "01012345678"
+}
+
+###
+DELETE http://localhost:8082/api/users/1
+Content-Type: application/json
+X-USER-ID: 1
+
+
+###
+POST http://localhost:8082/api/users/1/points
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "amount": 1000
+}
+
+###
+GET http://localhost:8082/api/users/1/points
+Content-Type: application/json
+X-USER-ID: 1
+
+###
+POST http://localhost:8082/api/users/1/points-histories
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "leftPoints": 200,
+  "orderId": 1,
+  "pointChange": 200,
+  "pointReason": "test1",
+  "userId": "1"
+}
+
+###
+POST http://localhost:8082/api/users/1/points-histories
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "leftPoints": 1200,
+  "orderId": 1,
+  "pointChange": 1000,
+  "pointReason": "test2",
+  "userId": "1"
+}
+
+###
+GET http://localhost:8082/api/users/1/point-histories
+Content-Type: application/json
+X-USER-ID: 1
+
+###
+PUT http://localhost:8082/api/reward-rates/1
+Content-Type: application/json
+X-USER-ID: 1
+
+{
+  "id": 1,
+  "name": "새 정책",
+  "addPoint": 0,
+  "addRate": 7
+}
+
+
+
+### jwt 토큰 발급 테스트(로그인 체크X)
+POST http://localhost:8082/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "dang",
+  "password": "aaaa1111@"
+}
+
+
+### 주소 생성
+POST http://localhost:8082/api/users/1/addresses
+X-USER-ID: 1
+Content-Type: application/json
+
+{
+  "addressName": "우리집",
+  "address": "서울특별시 송파구 올림픽로",
+  "detailAddress": "101동 101호"
+}
+
+### 전체 주소 조회
+GET http://localhost:8082/api/users/1/addresses
+X-USER-ID: 1
+Content-Type: application/json
+
+### 특정 주소 조회
+GET http://localhost:8082/api/users/1/addresses/1
+X-USER-ID: 1
+Content-Type: application/json
+
+### 주소 수정
+PUT http://localhost:8082/api/users/1/addresses/1
+X-USER-ID: 1
+Content-Type: application/json
+
+{
+  "addressName": "회사",
+  "address": "서울특별시 강남구 테헤란로",
+  "detailAddress": "202동 202호"
+}
+
+### 주소 삭제
+DELETE http://localhost:8082/api/users/1/addresses/1
+X-USER-ID: 1

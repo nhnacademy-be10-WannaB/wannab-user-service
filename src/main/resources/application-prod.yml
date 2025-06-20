@@ -1,0 +1,14 @@
+spring:
+  config:
+    import: optional:classpath:properties/env.properties
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${USERNAME}
+    password: ${PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
