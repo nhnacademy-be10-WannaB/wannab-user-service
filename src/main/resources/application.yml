@@ -6,7 +6,8 @@ spring:
     name: user-service
   profiles:
     active: prod
-
+  config:
+    import: "optional:configserver:http://config-server:10394/"
   
   jpa:
     open-in-view: false
