@@ -39,7 +39,9 @@ jobs:
                -X POST \
                -d '{
                  "botName": "wannab bot",
-                 "text": "✅ 빌드 + 테스트 성공!"
+                 "title" : "${{ github.repository }} 배포 성공",
+                 "text": "👤 머지한 사람: ${{ github.actor }}\n✅ 빌드 + 테스트 성공!",
+                 "color" : "green"
                }' \
                "${{ secrets.DOORAY_WEBHOOK_URL }}"
 
@@ -54,7 +56,9 @@ jobs:
                -X POST \
                -d '{
                  "botName": "wannab bot",
-                 "text": "❌ 빌드 또는 테스트 실패..."
+                  "title" : "${{ github.repository }} 배포 실패",
+                 "text": "👤 머지한 사람: ${{ github.actor }}\n❌ 빌드 또는 테스트 실패...",
+                  "color" : "red"
                }' \
                "${{ secrets.DOORAY_WEBHOOK_URL }}"
 
