@@ -20,4 +20,6 @@ public interface UserService {
     void saveRefreshToken(String refreshToken, Long userId);
 
     void deleteUser(long userId);
+
+    String reissueToken(String refreshToken);
 }

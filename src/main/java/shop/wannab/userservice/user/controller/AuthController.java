@@ -1,7 +1,5 @@
 package shop.wannab.userservice.user.controller;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +12,6 @@ import shop.wannab.userservice.user.domain.dto.LoginResponse;
 import shop.wannab.userservice.user.domain.dto.UserLoginDTO;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
-import shop.wannab.userservice.utils.Util;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,14 +33,8 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity refreshAccessToken(@RequestHeader("X-REFRESH-TOKEN") String refreshToken) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(Util.SECRET)
-                .parseClaimsJws(refreshToken)
-                .getBody();
-        Long userId = claims.get("userId", Long.class);
-        String role = claims.get("role", String.class);
 
-        String newAccessToken = userService.generateAccessToken(userId, role);
+        String newAccessToken = userService.reissueToken(refreshToken);
 
         return ResponseEntity.ok(newAccessToken);
     }

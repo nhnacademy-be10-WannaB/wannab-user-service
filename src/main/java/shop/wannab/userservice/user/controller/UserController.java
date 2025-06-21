@@ -34,13 +34,10 @@ public class UserController {
         return ResponseEntity.created(uri).body(user);
     }
 
-    @GetMapping("/{user-id}")
-    public ResponseEntity<User> readUser(@PathVariable(name = "user-id") String userId,
-                                         @RequestHeader(Util.HEADER_ID_NAME) String headerUserId) {
-        if (!userId.equals(headerUserId)) {
-            throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
-        }
-        User user = userService.readUser(Long.parseLong(userId));
+    @GetMapping
+    public ResponseEntity<User> readUser(@RequestHeader(Util.HEADER_ID_NAME) Long headerUserId) {
+
+        User user = userService.readUser(headerUserId);
         return ResponseEntity.ok().body(user);
     }
 

@@ -1,5 +1,7 @@
 package shop.wannab.userservice.user.service;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -7,11 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
 import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
 import shop.wannab.userservice.user.domain.entity.User;
+import shop.wannab.userservice.user.exception.RefreshTokenNotMatchException;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.exception.UsernameOrPasswordMismatchException;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
+import shop.wannab.userservice.utils.Util;
 
 @Service
 @RequiredArgsConstructor
@@ -92,5 +96,23 @@ public class UserServiceImpl implements UserService {
         redisTemplate.opsForHash().put(REFRESH_KEY, userId.toString(), refreshToken);
     }
 
+    @Override
+    public String reissueToken(String refreshToken) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(Util.SECRET_KEY)
+                .parseClaimsJws(refreshToken)
+                .getBody();
+        Long userId = claims.get("userId", Long.class);
+        String role = claims.get("role", String.class);
+
+        String storedRefreshToken = (String) redisTemplate.opsForHash().get(REFRESH_KEY, userId.toString());
+
+        if (!refreshToken.equals(storedRefreshToken)) {
+            throw new RefreshTokenNotMatchException("Refresh Token이 일치하지 않습니다.");
+        }
+
+        String newAccessToken = JwtUtil.createAccessToken(userId, role);
+        return newAccessToken;
+    }
 
 }
