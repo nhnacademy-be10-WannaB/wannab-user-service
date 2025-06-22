@@ -6,6 +6,8 @@ import java.util.Date;
 
 public class JwtUtil {
 
+    public static final String REFRESH_KEY = "refresh_token:";
+
     public static String createAccessToken(Long userId, String role) {
         return Jwts.builder()
                 .claim("userId", userId)
