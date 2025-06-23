@@ -2,8 +2,10 @@ package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
@@ -23,6 +25,7 @@ import shop.wannab.userservice.utils.Util;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final PasswordEncoder encoder;
 
     private static final String REFRESH_KEY = "refresh_token:";
 
@@ -32,7 +35,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = User.builder()
-                .password(userCreateDTO.password())
+                .password(encoder.encode(userCreateDTO.password()))
                 .username(userCreateDTO.username())
                 .name(userCreateDTO.name())
                 .email(userCreateDTO.email())
@@ -70,12 +73,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(String username, String password) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
             throw new UserNotFoundException();
         }
-        if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-            return user;
+        if (user.get().getUsername().equals(username) && user.get().getPassword().equals(password)) {
+            return user.get();
         } else {
             throw new UsernameOrPasswordMismatchException("사용자 정보가 일치하지 않습니다.");
         }
