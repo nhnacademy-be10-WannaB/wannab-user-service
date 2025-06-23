@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
@@ -25,7 +24,6 @@ import shop.wannab.userservice.utils.Util;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final PasswordEncoder encoder;
 
     private static final String REFRESH_KEY = "refresh_token:";
 
@@ -35,7 +33,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = User.builder()
-                .password(encoder.encode(userCreateDTO.password()))
+                .password(userCreateDTO.password())
                 .username(userCreateDTO.username())
                 .name(userCreateDTO.name())
                 .email(userCreateDTO.email())
