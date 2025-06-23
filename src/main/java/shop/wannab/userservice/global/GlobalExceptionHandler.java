@@ -8,7 +8,6 @@ import shop.wannab.userservice.address.exception.UserAddressFullException;
 import shop.wannab.userservice.address.exception.UserAddressNotFoundException;
 import shop.wannab.userservice.user.domain.dto.ErrorResponse;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
-import shop.wannab.userservice.user.exception.UserIdMismatchException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 
 @RestControllerAdvice
@@ -19,12 +18,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
-
-    @ExceptionHandler({UserIdMismatchException.class})
-    public ResponseEntity<ErrorResponse> handleUserIdMismatchException(RuntimeException e) {
-        ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
+    
 
     @ExceptionHandler({UserAlreadyExistsException.class})
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(RuntimeException e) {

@@ -1,16 +1,16 @@
 package shop.wannab.userservice.user.service;
 
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
-import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
-import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
+import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
+import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.entity.User;
 
 public interface UserService {
-    User createUser(UserCreateDTO userCreateDTO);
+    User createUser(UserCreateRequest userCreateDTO);
 
     User readUser(long userId);
 
-    User updateUser(long userId, UserUpdateDTO userupdateDTO);
+    User updateUser(long userId, UserUpdateRequest userupdateDTO);
 
     User login(String username, String password);
 
