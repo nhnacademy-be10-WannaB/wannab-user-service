@@ -7,12 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
+import shop.wannab.userservice.user.client.CartClient;
 import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
 import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.RefreshTokenNotMatchException;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
+import shop.wannab.userservice.user.repository.UserGradeRepository;
 import shop.wannab.userservice.user.exception.UsernameOrPasswordMismatchException;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
@@ -23,6 +26,8 @@ import shop.wannab.userservice.utils.Util;
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserGradeRepository userGradeRepository;
+    private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String REFRESH_KEY = "refresh_token:";
@@ -30,6 +35,10 @@ public class UserServiceImpl implements UserService {
     public User createUser(UserCreateDTO userCreateDTO) {
         if (userRepository.existsByUsername(userCreateDTO.username())) {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
+        }
+        try {
+            cartClient.createCart();
+        } catch (Exception e) {
         }
 
         User user = User.builder()
@@ -39,6 +48,7 @@ public class UserServiceImpl implements UserService {
                 .email(userCreateDTO.email())
                 .phone(userCreateDTO.phone())
                 .birth(userCreateDTO.birth())
+                .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
         return userRepository.save(user);
     }
@@ -67,6 +77,21 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("해당하는 유저 없음");
         }
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public int readPoint(long userId) {
+        return readUser(userId).getPoints();
+    }
+
+    @Override
+    public void updatePoint(long userId, PointUpdateDTO pointUpdateDTO) {
+        readUser(userId).setPoints(pointUpdateDTO.amount());
+    }
+
+    @Override
+    public boolean existsUser(long userId) {
+        return userRepository.existsById(userId);
     }
 
     @Override

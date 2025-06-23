@@ -14,8 +14,9 @@ spring:
       enabled: false
     config:
       enabled: false
+  config:
+    import: "optional:configserver:http://config-server:10394/"
 
-  
   jpa:
     open-in-view: false
     show-sql: true
