@@ -23,7 +23,7 @@ import shop.wannab.userservice.user.service.UserService;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/users/{user-id}/addresses")
+@RequestMapping("/api/users/addresses")
 public class UserAddressController {
 
     private final UserAddressService userAddressService;
