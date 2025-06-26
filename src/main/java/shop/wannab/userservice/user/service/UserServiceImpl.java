@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.client.CartClient;
+import shop.wannab.userservice.user.client.PaycoApiClient;
+import shop.wannab.userservice.user.domain.dto.PaycoMemberInfoResponse;
+import shop.wannab.userservice.user.domain.dto.PaycoTokenResponse;
 import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
 import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
 import shop.wannab.userservice.user.domain.entity.User;
@@ -17,6 +20,7 @@ import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserGradeRepository;
 import shop.wannab.userservice.user.exception.UsernameOrPasswordMismatchException;
+import shop.wannab.userservice.user.repository.UserGradeRepository;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
 import shop.wannab.userservice.utils.Util;
@@ -29,8 +33,8 @@ public class UserServiceImpl implements UserService {
     private final UserGradeRepository userGradeRepository;
     private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
-
     private static final String REFRESH_KEY = "refresh_token:";
+    private final PaycoApiClient paycoApiClient;
 
     public User createUser(UserCreateDTO userCreateDTO) {
         if (userRepository.existsByUsername(userCreateDTO.username())) {
@@ -107,6 +111,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     @Override
     public String generateAccessToken(long userId, String userRole) {
         return JwtUtil.createAccessToken(userId, userRole);
@@ -140,5 +145,31 @@ public class UserServiceImpl implements UserService {
         String newAccessToken = JwtUtil.createAccessToken(userId, role);
         return newAccessToken;
     }
+
+    @Override
+    public void payco(String authorizationCode) {
+        PaycoTokenResponse paycoTokenResponse = paycoApiClient.getPaycoToken(authorizationCode);
+        PaycoMemberInfoResponse.Member paycoMemberInfo = paycoApiClient.getPaycoMemberInfo(
+                paycoTokenResponse.getAccessToken());
+
+        //
+//        if (userRepository.getUserByEmail(paycoMemberInfo.getEmail()).get() != null) {
+//            throw new UserAlreadyExistsException("이미 회원가입한 이메일입니다.");
+//        }
+
+        // 페이코 회원가입
+        User user = User.builder()
+                .email(paycoMemberInfo.getEmail())
+                .name(paycoMemberInfo.getName())
+                .phone(paycoMemberInfo.getMobile())
+//                    .birth(paycoMemberInfo.getBirthday())
+                .userGrade(userGradeRepository.findByGradeName("Standard"))
+                .providerId(paycoMemberInfo.getIdNo())
+                .providerName("페이코")
+                .build();
+        userRepository.save(user);
+
+    }
+
 
 }

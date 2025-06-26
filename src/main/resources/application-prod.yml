@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: optional:classpath:properties/env.properties
   datasource:
     url: ${MYSQL_URL}
     username: ${USERNAME}
@@ -12,3 +10,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+  config:
+    import: optional:classpath:properties/env.properties
+

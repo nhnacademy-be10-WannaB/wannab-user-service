@@ -29,4 +29,6 @@ public interface UserService {
     boolean existsUser(long userId);
 
     String reissueToken(String refreshToken);
+
+    void payco(String authorizationCode);
 }
