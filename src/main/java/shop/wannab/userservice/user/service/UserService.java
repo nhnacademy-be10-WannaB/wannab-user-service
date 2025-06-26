@@ -27,4 +27,6 @@ public interface UserService {
     void updatePoint(long userId, PointUpdateDTO pointUpdateDTO);
 
     boolean existsUser(long userId);
+
+    String reissueToken(String refreshToken);
 }
