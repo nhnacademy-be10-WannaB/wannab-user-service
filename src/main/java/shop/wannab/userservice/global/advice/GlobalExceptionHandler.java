@@ -1,4 +1,4 @@
-package shop.wannab.userservice.global;
+package shop.wannab.userservice.global.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
