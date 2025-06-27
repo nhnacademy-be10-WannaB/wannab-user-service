@@ -27,6 +27,12 @@ spring:
         highlight_sql: true
         auto_quote_keyword: true
         globally_quoted_identifiers: true
+  data:
+    redis:
+      host: ${redis.host}
+      port: 6379
+      password: ${redis.password}
+      database: 320
 
 eureka:
   client:
