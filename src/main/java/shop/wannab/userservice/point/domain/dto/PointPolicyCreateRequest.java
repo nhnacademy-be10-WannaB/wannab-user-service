@@ -8,8 +8,3 @@ public record PointPolicyCreateRequest(@NotBlank String name,
                                        @PositiveOrZero @Max(100) int addRate,
                                        @PositiveOrZero int addPoint) {
 }
-
-//public record PointPolicyCreateRequest(String name,
-//                                       int addRate,
-//                                       int addPoint) {
-//}
