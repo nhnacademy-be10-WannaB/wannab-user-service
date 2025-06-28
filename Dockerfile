@@ -1,5 +1,5 @@
-FROM openjdk:21-jdk
+FROM eclipse-temurin:21
+ARG JAR_FILE=./target/wannab-user-service.jar
+COPY ${JAR_FILE} wannab-user-service.jar
 
-COPY target/user-service-0.0.1-SNAPSHOT.jar /app.jar
-
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java","-jar", "/wannab-user-service.jar"]
