@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import shop.wannab.userservice.user.domain.dto.UserCreateDTO;
-import shop.wannab.userservice.user.domain.dto.UserUpdateDTO;
+import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
+import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
+import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.User;
-import shop.wannab.userservice.user.exception.UserIdMismatchException;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.Util;
 
@@ -28,39 +28,37 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserCreateRequest userCreateDTO) {
         User user = userService.createUser(userCreateDTO);
         URI uri = URI.create("/api/users/" + user.getUserId());
         return ResponseEntity.created(uri).body(user);
     }
 
-    @GetMapping("/{user-id}")
-    public ResponseEntity<User> readUser(@PathVariable(name = "user-id") Long userId,
-                                         @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId) {
-        if (!userId.equals(headerUserId)) {
-            throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
-        }
+    @GetMapping
+    public ResponseEntity<UserPageResponse> readUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
         User user = userService.readUser(userId);
-        return ResponseEntity.ok().body(user);
+        UserPageResponse response = UserPageResponse.builder()
+                .username(user.getUsername())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .birth(user.getBirth())
+                .nickname(user.getNickname())
+                .password(user.getPassword())
+                .points(user.getPoints())
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 
-    @PatchMapping("/{user-id}")
-    public ResponseEntity<User> updateUser(@PathVariable(name = "user-id") Long userId,
-                                           @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId,
-                                           @RequestBody @Valid UserUpdateDTO userupdateDTO) {
-        if (!userId.equals(headerUserId)) {
-            throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
-        }
+    @PatchMapping
+    public ResponseEntity<User> updateUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId,
+                                           @RequestBody @Valid UserUpdateRequest userupdateDTO) {
         User user = userService.updateUser(userId, userupdateDTO);
         return ResponseEntity.ok().body(user);
     }
 
-    @DeleteMapping("/{user-id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable(name = "user-id") Long userId,
-                                           @RequestHeader(Util.HEADER_ID_NAME) Long headerUserId) {
-        if (!userId.equals(headerUserId)) {
-            throw new UserIdMismatchException("요청자 id와 대상 id가 일치하지 않습니다");
-        }
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }

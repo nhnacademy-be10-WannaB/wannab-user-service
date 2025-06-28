@@ -278,6 +278,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+src/main/resources/properties/*.properties
+src/main/resources/application-dev.yml
+src/main/resources/application.yml
+
 # End of https://www.toptal.com/developers/gitignore/api/maven,windows,macos,linux,sonarqube,intellij+all,intellij
 
-src/main/resources/properties/*.properties
