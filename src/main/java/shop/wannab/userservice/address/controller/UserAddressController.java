@@ -19,15 +19,13 @@ import shop.wannab.userservice.address.domain.dto.UserAddressResponse;
 import shop.wannab.userservice.address.domain.dto.UserAddressUpdateRequest;
 import shop.wannab.userservice.address.domain.entity.UserAddress;
 import shop.wannab.userservice.address.service.UserAddressService;
-import shop.wannab.userservice.user.service.UserService;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/users/{user-id}/addresses")
+@RequestMapping("/api/users/addresses")
 public class UserAddressController {
 
     private final UserAddressService userAddressService;
-    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<UserAddressResponse>> getAllAddresses(@RequestHeader("X-USER-ID") Long userId) {
