@@ -23,22 +23,24 @@ import shop.wannab.userservice.user.domain.entity.User;
 @Builder
 @AllArgsConstructor
 public class PointHistory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "point_history_id")
-    private long pointsHistoryId;
+    private Long pointsHistoryId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-    @Column(name = "order_id")
-    private long orderId;
-    @Column(name = "point_history_reason")
+
+    private Long orderId;
+
     private String pointHistoryReason;
-    @Column(name = "point_history_change")
+
     private int pointHistoryChange;
-    @Column(name = "total_points")
+
     private int totalPoints;
+
     @Builder.Default
-    @Column(name = "create_at")
     private ZonedDateTime createdAt = ZonedDateTime.now();
 }
