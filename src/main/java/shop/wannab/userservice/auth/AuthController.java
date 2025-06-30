@@ -1,6 +1,7 @@
-package shop.wannab.userservice.user.controller;
+package shop.wannab.userservice.auth;
 
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.auth.controller.request.LoginRequest;
 import shop.wannab.userservice.auth.controller.response.LoginResponse;
+import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
 
@@ -38,6 +40,13 @@ public class AuthController {
         String newAccessToken = userService.reissueToken(refreshToken);
 
         return ResponseEntity.ok(newAccessToken);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserCreateRequest userCreateDTO) {
+        User user = userService.createUser(userCreateDTO);
+        URI uri = URI.create("/api/users/" + user.getUserId());
+        return ResponseEntity.created(uri).body(user);
     }
 
 }
