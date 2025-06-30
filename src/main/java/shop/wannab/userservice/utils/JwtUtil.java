@@ -14,10 +14,12 @@ import org.springframework.stereotype.Component;
 public class JwtUtil {
 
     public static final String REFRESH_KEY = "refresh_token:";
-
     private final Key secretKey;
 
     public JwtUtil(@Value("${jwt.secret-key}") String secret) {
+        if (secret == null) {
+            throw new IllegalArgumentException("JWT secret is null!");
+        }
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
