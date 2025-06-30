@@ -1,4 +1,4 @@
-package shop.wannab.userservice.auth;
+package shop.wannab.userservice.auth.controller;
 
 import jakarta.validation.Valid;
 import java.net.URI;
