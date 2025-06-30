@@ -1,7 +1,6 @@
 package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserGradeRepository;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
-import shop.wannab.userservice.utils.Util;
 
 @Service
 @RequiredArgsConstructor
@@ -101,10 +99,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String reissueToken(String refreshToken) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(Util.SECRET_KEY)
-                .parseClaimsJws(refreshToken)
-                .getBody();
+        Claims claims = jwtUtil.parseToken(refreshToken);
         Long userId = claims.get("userId", Long.class);
         String role = claims.get("role", String.class);
 
