@@ -28,12 +28,14 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final ObjectMapper mapper;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final JwtUtil jwtUtil;
 
     public JwtLoginFilter(AuthenticationManager authenticationManager, ObjectMapper mapper,
-                          RedisTemplate<String, Object> redisTemplate) {
+                          RedisTemplate<String, Object> redisTemplate, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.mapper = mapper;
         this.redisTemplate = redisTemplate;
+        this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/api/auth/login");
     }
 
@@ -61,8 +63,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
                 .map(GrantedAuthority::getAuthority)
                 .orElseThrow(() -> new RuntimeException("권한 없음"));
 
-        String accessToken = JwtUtil.createAccessToken(principal.getId(), role);
-        String refreshToken = JwtUtil.createRefreshToken(principal.getId(), role);
+        String accessToken = jwtUtil.createAccessToken(principal.getId(), role);
+        String refreshToken = jwtUtil.createRefreshToken(principal.getId(), role);
 
         redisTemplate.opsForHash().put(REFRESH_KEY, String.valueOf(principal.getId()), refreshToken);
 
