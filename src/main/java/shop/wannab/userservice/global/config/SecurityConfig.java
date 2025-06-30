@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import shop.wannab.userservice.auth.filter.JwtLoginFilter;
+import shop.wannab.userservice.utils.JwtUtil;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,11 +22,11 @@ public class SecurityConfig{
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, ObjectMapper mapper,
                                            RedisTemplate<String, Object> redisTemplate,
-                                           AuthenticationConfiguration authConfig) throws Exception {
+                                           AuthenticationConfiguration authConfig, JwtUtil jwtUtil) throws Exception {
 
         AuthenticationManager authManager = authConfig.getAuthenticationManager();
 
-        JwtLoginFilter jwtLoginFilter = new JwtLoginFilter(authManager, mapper, redisTemplate);
+        JwtLoginFilter jwtLoginFilter = new JwtLoginFilter(authManager, mapper, redisTemplate, jwtUtil);
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
