@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,7 @@ import shop.wannab.userservice.auth.controller.response.LoginResponse;
 import shop.wannab.userservice.auth.domain.CustomUserDetails;
 import shop.wannab.userservice.utils.JwtUtil;
 
+@Slf4j
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -45,7 +47,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
                 loginRequest.username(),
                 loginRequest.password()
         );
-
+        log.info("로그인 시도 : username : {}, password : {}", loginRequest.username(), loginRequest.password());
         return this.authenticationManager.authenticate(token);
     }
 
@@ -64,7 +66,6 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         redisTemplate.opsForHash().put(REFRESH_KEY, String.valueOf(principal.getId()), refreshToken);
 
-        // Header 로 바꿀까?
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
