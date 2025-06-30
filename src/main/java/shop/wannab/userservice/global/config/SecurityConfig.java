@@ -1,6 +1,7 @@
 package shop.wannab.userservice.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,12 +15,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import shop.wannab.userservice.auth.filter.JwtLoginFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig{
 
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager, ObjectMapper mapper,
-                                           RedisTemplate<String, Object> redisTemplate) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, ObjectMapper mapper,
+                                           RedisTemplate<String, Object> redisTemplate,
+                                           AuthenticationConfiguration authConfig) throws Exception {
+
+        AuthenticationManager authManager = authConfig.getAuthenticationManager();
+
         JwtLoginFilter jwtLoginFilter = new JwtLoginFilter(authManager, mapper, redisTemplate);
 
         http
@@ -36,10 +41,5 @@ public class SecurityConfig{
         );
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
     }
 }
