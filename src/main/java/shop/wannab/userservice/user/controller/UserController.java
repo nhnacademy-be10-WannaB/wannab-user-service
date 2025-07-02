@@ -51,4 +51,10 @@ public class UserController {
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<User> logout(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+        userService.logout(userId);
+        return ResponseEntity.noContent().build();
+    }
 }
