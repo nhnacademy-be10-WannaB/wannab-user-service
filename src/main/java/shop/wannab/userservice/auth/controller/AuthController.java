@@ -38,9 +38,9 @@ public class AuthController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<UserResponse> login(@RequestBody String loginId) {
+    public UserResponse login(@RequestBody String loginId) {
         UserResponse userResponse = userService.findByUsername(loginId);
-        return ResponseEntity.ok(userResponse);
+        return userResponse;
     }
 
 }
