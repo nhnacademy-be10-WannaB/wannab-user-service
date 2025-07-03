@@ -17,8 +17,8 @@ public class AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public TokenResponse login(TokenRequest tokenRequest) {
-        String accessToken = jwtUtil.createAccessToken(tokenRequest.userId(), tokenRequest.role().name());
-        String refreshToken = jwtUtil.createRefreshToken(tokenRequest.userId(), tokenRequest.role().name());
+        String accessToken = jwtUtil.createAccessToken(tokenRequest.userId(), tokenRequest.role());
+        String refreshToken = jwtUtil.createRefreshToken(tokenRequest.userId(), tokenRequest.role());
         redisTemplate.opsForHash().put(REFRESH_KEY, String.valueOf(tokenRequest.userId()), refreshToken);
         return new TokenResponse(accessToken, refreshToken);
     }
