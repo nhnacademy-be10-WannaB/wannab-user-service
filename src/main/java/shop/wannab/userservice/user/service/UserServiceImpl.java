@@ -1,6 +1,7 @@
 package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.client.CartClient;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
+import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.RefreshTokenNotMatchException;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
@@ -74,7 +76,8 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException("해당하는 유저 없음");
         }
-        userRepository.deleteById(userId);
+        User user = userRepository.findById(userId).get();
+        user.setState(State.DELETED);
     }
 
     @Override
@@ -111,6 +114,20 @@ public class UserServiceImpl implements UserService {
 
         String newAccessToken = jwtUtil.createAccessToken(userId, role);
         return newAccessToken;
+    }
+
+    @Override
+    public void logout(long userId) {
+        redisTemplate.opsForHash().delete(REFRESH_KEY, userId);
+    }
+
+    @Override
+    public List<Long> birthUserList(int month) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("월(month)은 1~12 사이여야 합니다.");
+        }
+        List<Long> users = userRepository.findUserIdsByBirthMonth(month);
+        return users;
     }
 
 }
