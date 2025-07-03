@@ -1,5 +1,6 @@
 package shop.wannab.userservice.user.service;
 
+import java.util.List;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
@@ -25,4 +26,6 @@ public interface UserService {
     String reissueToken(String refreshToken);
 
     void logout(long userId);
+
+    List<Long> birthUserList(int month);
 }
