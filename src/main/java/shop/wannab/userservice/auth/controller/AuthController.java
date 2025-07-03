@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import shop.wannab.userservice.auth.controller.response.LoginResponse;
+import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
@@ -37,10 +37,10 @@ public class AuthController {
         return ResponseEntity.created(uri).body(user);
     }
 
-    @GetMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody String loginId) {
-        LoginResponse loginResponse = userService.findByUsername(loginId);
-        return ResponseEntity.ok(loginResponse);
+    @GetMapping("/users")
+    public ResponseEntity<UserResponse> login(@RequestBody String loginId) {
+        UserResponse userResponse = userService.findByUsername(loginId);
+        return ResponseEntity.ok(userResponse);
     }
 
 }

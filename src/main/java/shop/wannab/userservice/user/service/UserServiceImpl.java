@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shop.wannab.userservice.auth.controller.response.LoginResponse;
+import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.client.CartClient;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
@@ -132,10 +132,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public LoginResponse findByUsername(String username) {
+    public UserResponse findByUsername(String username) {
         User user = userRepository.findByUsername(username).
                 orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
-        LoginResponse loginResponse = LoginResponse.builder()
+        UserResponse loginResponse = UserResponse.builder()
                 .loginId(user.getUsername())
                 .password(user.getPassword())
                 .userId(user.getUserId())
