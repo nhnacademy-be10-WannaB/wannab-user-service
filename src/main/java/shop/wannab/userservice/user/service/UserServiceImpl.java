@@ -1,6 +1,7 @@
 package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -118,6 +119,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(long userId) {
         redisTemplate.opsForHash().delete(REFRESH_KEY, userId);
+    }
+
+    @Override
+    public List<Long> birthUserList(int month) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("월(month)은 1~12 사이여야 합니다.");
+        }
+        List<Long> users = userRepository.findUserIdsByBirthMonth(month);
+        return users;
     }
 
 }
