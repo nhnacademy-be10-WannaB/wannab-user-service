@@ -18,7 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import shop.wannab.userservice.auth.controller.request.LoginRequest;
-import shop.wannab.userservice.auth.controller.response.LoginResponse;
+import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.auth.domain.CustomUserDetails;
 import shop.wannab.userservice.utils.JwtUtil;
 
@@ -71,12 +71,12 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        LoginResponse loginResponse = new LoginResponse(accessToken, refreshToken);
+        TokenResponse loginResponse = new TokenResponse(accessToken, refreshToken);
 
         mapper.writeValue(response.getWriter(), loginResponse);
     }
 
-    private LoginRequest parseRequest(HttpServletRequest request){
+    private LoginRequest parseRequest(HttpServletRequest request) {
         try {
             return mapper.readValue(request.getInputStream(), LoginRequest.class);
         } catch (IOException e) {
