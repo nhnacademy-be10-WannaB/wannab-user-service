@@ -9,6 +9,7 @@ import shop.wannab.userservice.address.domain.dto.UserAddressCreateRequest;
 import shop.wannab.userservice.address.domain.dto.UserAddressResponse;
 import shop.wannab.userservice.address.domain.dto.UserAddressUpdateRequest;
 import shop.wannab.userservice.address.domain.entity.UserAddress;
+import shop.wannab.userservice.address.exception.AlreadyExistsUserAddressException;
 import shop.wannab.userservice.address.exception.UserAddressFullException;
 import shop.wannab.userservice.address.exception.UserAddressNotFoundException;
 import shop.wannab.userservice.address.repository.UserAddressRepository;
@@ -55,26 +56,27 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Override
     @Transactional
-    public UserAddress save(Long userId, UserAddressCreateRequest request) {
+    public void save(Long userId, UserAddressCreateRequest request) {
         User user = userService.readUser(userId);
         long addressCount = userAddressRepository.countByUser(user);
         if (addressCount >= 10) {
             throw new UserAddressFullException("주소는 최대 10개까지 등록할 수 있습니다.");
+        } else if (userAddressRepository.existsByAddressName(request.getAddressName())) {
+            throw new AlreadyExistsUserAddressException("이미 존재하는 주소입니다.");
         }
-
         UserAddress entity = UserAddress.builder()
                 .addressName(request.getAddressName())
                 .address(request.getAddress())
                 .detailAddress(request.getDetailAddress())
                 .user(userService.readUser(userId))
                 .build();
+        userAddressRepository.save(entity);
 
-        return userAddressRepository.save(entity);
     }
 
     @Override
     @Transactional
-    public UserAddress update(Long userId, Long addressId, UserAddressUpdateRequest request) {
+    public void update(Long userId, Long addressId, UserAddressUpdateRequest request) {
         User user = userService.readUser(userId);
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);
@@ -83,7 +85,7 @@ public class UserAddressServiceImpl implements UserAddressService {
         entity.setAddress(request.getAddress());
         entity.setDetailAddress(request.getDetailAddress());
 
-        return userAddressRepository.save(entity);
+        userAddressRepository.save(entity);
     }
 
     @Override
