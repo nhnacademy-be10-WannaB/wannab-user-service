@@ -42,10 +42,6 @@ public class UserAddressServiceImpl implements UserAddressService {
     public UserAddressResponse findByUserIdAndAddressId(Long userId, Long addressId) {
         User user = userService.readUser(userId);
 
-        long addressCount = userAddressRepository.countByUser(user);
-        if (addressCount >= 10) {
-            throw new UserAddressFullException("주소는 최대 10개까지 등록할 수 있습니다.");
-        }
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);
 
@@ -60,6 +56,12 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional
     public UserAddress save(Long userId, UserAddressCreateRequest request) {
+        User user = userService.readUser(userId);
+        long addressCount = userAddressRepository.countByUser(user);
+        if (addressCount >= 10) {
+            throw new UserAddressFullException("주소는 최대 10개까지 등록할 수 있습니다.");
+        }
+
         UserAddress entity = UserAddress.builder()
                 .addressName(request.getAddressName())
                 .address(request.getAddress())
