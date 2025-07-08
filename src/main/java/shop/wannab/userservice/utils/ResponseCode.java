@@ -13,9 +13,13 @@ public final class ResponseCode {
     public static final String ADDRESS_NOT_FOUND = "01002";
     public static final String ADDRESS_ALREADY_EXISTS = "01003";
 
+
     // 02 auth
+    public static final String PAYCO_SIGNUP_SUCESS = "02001";
+    public static final String PAYCO_LOGIN_SUCESS = "02002";
 
     // 03 point
 
     // 04 user
+
 }
