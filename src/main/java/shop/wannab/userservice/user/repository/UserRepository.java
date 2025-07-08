@@ -8,4 +8,8 @@ public interface UserRepository extends JpaRepository<User, Long>, UserQueryDslR
     Boolean existsByUsername(String username);
 
     Optional<User> findByUsername(String username);
+
+    Optional<User> findByProviderId(String providerId);
+
+    boolean existsByProviderId(String providerId);
 }

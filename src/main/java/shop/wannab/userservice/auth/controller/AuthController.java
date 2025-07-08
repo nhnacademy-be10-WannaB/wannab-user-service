@@ -10,13 +10,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import shop.wannab.userservice.auth.controller.request.PaycoLoginRequest;
 import shop.wannab.userservice.auth.controller.request.TokenRequest;
+import shop.wannab.userservice.auth.controller.response.PaycoLoginResponse;
 import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.auth.service.AuthService;
+import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
-import shop.wannab.userservice.utils.JwtUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +27,6 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
 
     @GetMapping("/refresh-token")
     public ResponseEntity refreshAccessToken(@RequestHeader("X-REFRESH-TOKEN") String refreshToken) {
@@ -45,6 +46,12 @@ public class AuthController {
     @PostMapping("/token")
     public ResponseEntity<TokenResponse> token(@RequestBody TokenRequest tokenRequest) {
         return ResponseEntity.ok(authService.login(tokenRequest));
+    }
+
+    @PostMapping("/login/payco")
+    public ResponseEntity<Response<PaycoLoginResponse>> paycoLogin(@RequestBody PaycoLoginRequest paycoLoginRequest) {
+        Response<PaycoLoginResponse> response = authService.paycoLogin(paycoLoginRequest);
+        return ResponseEntity.ok(response);
     }
 
 }
