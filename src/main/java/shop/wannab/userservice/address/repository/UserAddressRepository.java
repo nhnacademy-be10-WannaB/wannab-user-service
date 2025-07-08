@@ -14,4 +14,6 @@ public interface UserAddressRepository extends JpaRepository<UserAddress, Long> 
     long countByUser(User user);
 
     List<UserAddress> findAllByUser(User user);
+
+    boolean existsByAddressName(String addressName);
 }
