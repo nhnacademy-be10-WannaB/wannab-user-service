@@ -31,4 +31,7 @@ public interface UserService {
     List<Long> birthUserList(int month);
 
     UserResponse findByUsername(String username);
+
+    //TODO 배포전 삭제
+    User human(Long userId);
 }

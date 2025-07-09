@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,5 +64,12 @@ public class UserController {
     @GetMapping("/birthdays")
     public List<Long> birthUserList(@RequestParam int month) {
         return userService.birthUserList(month);
+    }
+
+    // TODO: 휴면인증해제 테스트 api, 배포전 삭제
+    @GetMapping("/human/{userId}")
+    public ResponseEntity<User> humanUserList(@PathVariable Long userId) {
+        User user = userService.human(userId);
+        return ResponseEntity.ok().body(user);
     }
 }
