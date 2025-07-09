@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.auth.controller.request.PaycoLoginRequest;
 import shop.wannab.userservice.auth.controller.request.ReissueRequest;
 import shop.wannab.userservice.auth.controller.request.TokenRequest;
+import shop.wannab.userservice.auth.controller.request.UnlockRequest;
 import shop.wannab.userservice.auth.controller.response.PaycoLoginResponse;
 import shop.wannab.userservice.auth.controller.response.ReissueResponse;
 import shop.wannab.userservice.auth.controller.response.TokenResponse;
@@ -71,4 +72,15 @@ public class AuthController {
         return userResponse;
     }
 
+    @PostMapping("/unlock/request")
+    public ResponseEntity unlock(@RequestBody String userId) {
+        authService.unlockRequest(userId);
+        return ResponseEntity.ok().body(userId);
+    }
+
+    @PostMapping("/unlock/verify")
+    public ResponseEntity unlock(@RequestBody UnlockRequest request) {
+        boolean result = authService.unlock(request);
+        return ResponseEntity.ok(result);
+    }
 }
