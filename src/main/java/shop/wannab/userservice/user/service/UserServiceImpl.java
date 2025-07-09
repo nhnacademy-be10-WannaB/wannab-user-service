@@ -2,6 +2,7 @@ package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.client.CartClient;
+import shop.wannab.userservice.user.client.CouponClient;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.entity.State;
@@ -31,7 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserGradeRepository userGradeRepository;
     private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
-
+    private final CouponClient couponClient;
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
 
@@ -54,7 +56,9 @@ public class UserServiceImpl implements UserService {
                 .birth(userCreateDTO.birth())
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
-        return userRepository.save(user);
+        userRepository.save(user);
+        couponClient.issueWelcomeCoupon(user.getUserId());
+        return user;
     }
 
     @Override
@@ -157,6 +161,15 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole())
                 .build();
         return loginResponse;
+    }
+
+    @Override
+    public boolean duplicated(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            return true;
+        }
+        return false;
     }
 
     //TODO 배포전 삭제

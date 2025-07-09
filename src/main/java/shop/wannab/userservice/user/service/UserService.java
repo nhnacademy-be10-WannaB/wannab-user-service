@@ -32,6 +32,8 @@ public interface UserService {
 
     UserResponse findByUsername(String username);
 
+    boolean duplicated(String username);
+
     //TODO 배포전 삭제
     User human(Long userId);
 }
