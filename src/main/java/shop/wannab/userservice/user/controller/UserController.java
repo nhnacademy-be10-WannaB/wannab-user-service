@@ -3,6 +3,7 @@ package shop.wannab.userservice.user.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.Util;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
@@ -27,6 +29,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserPageResponse> readUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+        log.info("Controller: readUser");
         User user = userService.readUser(userId);
         UserPageResponse response = UserPageResponse.builder()
                 .username(user.getUsername())
@@ -44,6 +47,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserPageResponse> updateUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId,
                                                        @RequestBody @Valid UserUpdateRequest userupdateDTO) {
+        log.info("Controller: updateUser");
         User user = userService.updateUser(userId, userupdateDTO);
         UserPageResponse response = UserPageResponse.builder()
                 .username(user.getUsername())
@@ -60,18 +64,21 @@ public class UserController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+        log.info("Controller: deleteUser");
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/logout")
     public ResponseEntity<User> logout(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+        log.info("Controller: logout");
         userService.logout(userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/birthdays")
     public List<Long> birthUserList(@RequestParam int month) {
+        log.info("Controller: birthUserList");
         return userService.birthUserList(month);
     }
 }

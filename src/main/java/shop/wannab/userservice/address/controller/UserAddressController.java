@@ -3,6 +3,7 @@ package shop.wannab.userservice.address.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +25,7 @@ import shop.wannab.userservice.address.service.UserAddressService;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.utils.ResponseCode;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users/addresses")
@@ -33,6 +35,7 @@ public class UserAddressController {
 
     @GetMapping
     public ResponseEntity<List<UserAddressResponse>> getAllAddresses(@RequestHeader("X-USER-ID") Long userId) {
+        log.info("Controller: getAllAddresses");
         List<UserAddressResponse> addresses = userAddressService.findByUserId(userId);
         return ResponseEntity.ok(addresses);
     }
@@ -40,6 +43,7 @@ public class UserAddressController {
     @GetMapping("/{address-id}")
     public ResponseEntity<UserAddressResponse> getAddress(@RequestHeader("X-USER-ID") Long userId,
                                                           @PathVariable(name = "address-id") Long addressId) {
+        log.info("Controller: getAddress");
         UserAddressResponse address = userAddressService.findByUserIdAndAddressId(userId, addressId);
         return ResponseEntity.ok(address);
     }
@@ -47,6 +51,7 @@ public class UserAddressController {
     @PostMapping
     public Response<Void> createAddress(@RequestHeader("X-USER-ID") Long userId,
                                         @RequestBody @Valid UserAddressCreateRequest userAddressCreateRequest) {
+        log.info("Controller: createAddress");
         userAddressService.save(userId, userAddressCreateRequest);
         return new Response<>(null, ResponseCode.SUCCESS, null);
     }
@@ -55,6 +60,7 @@ public class UserAddressController {
     public Response<Void> updateAddress(@RequestHeader("X-USER-ID") Long userId,
                                         @PathVariable(name = "address-id") Long addressId,
                                         @RequestBody @Valid UserAddressUpdateRequest userAddressUpdateRequest) {
+        log.info("Controller: updateAddress");
         userAddressService.update(userId, addressId, userAddressUpdateRequest);
         return new Response<>(null, ResponseCode.SUCCESS, null);
     }
@@ -62,6 +68,7 @@ public class UserAddressController {
     @DeleteMapping("/{address-id}")
     public Response<Void> deleteAddress(@RequestHeader("X-USER-ID") Long userId,
                                         @PathVariable(name = "address-id") Long addressId) {
+        log.info("Controller: deleteAddress");
         userAddressService.deleteByUserIdAndAddressId(userId, addressId);
         return new Response<>(null, ResponseCode.SUCCESS, null);
     }
@@ -69,16 +76,19 @@ public class UserAddressController {
 
     @ExceptionHandler({UserAddressFullException.class})
     public Response<Void> handleUserAddressFullException(Exception e) {
+        log.info("Exception: handleUserAddressFullException");
         return new Response<>(null, ResponseCode.ADDRESS_IS_FULL, e.getMessage());
     }
 
     @ExceptionHandler({AlreadyExistsUserAddressException.class})
     public Response<String> handleAlreadyExistsUserAddressException(RuntimeException e) {
+        log.info("Exception: handleAlreadyExistsUserAddressException");
         return new Response<>(null, ResponseCode.ADDRESS_ALREADY_EXISTS, e.getMessage());
     }
 
     @ExceptionHandler({UserAddressNotFoundException.class})
     public Response<String> handleUserAddressNotFoundException(Exception e) {
+        log.info("Exception: handleUserAddressNotFoundException");
         return new Response<>(null, ResponseCode.ADDRESS_NOT_FOUND, e.getMessage());
     }
 }

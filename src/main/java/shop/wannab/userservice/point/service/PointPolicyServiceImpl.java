@@ -2,6 +2,7 @@ package shop.wannab.userservice.point.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.point.domain.dto.PointPolicyCreateRequest;
@@ -13,6 +14,7 @@ import shop.wannab.userservice.point.exception.PointPolicyNotFoundException;
 import shop.wannab.userservice.point.repository.PointPolicyRepository;
 import shop.wannab.userservice.user.domain.entity.Role;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -22,6 +24,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     @Override
     public PointPolicy updatePointPolicy(Role userRole,
                                          PointPolicyUpdateDTO pointPolicyUpdateDTO) {
+        log.info("Service: updatePointPolicy");
         if (userRole != Role.ADMIN) {
             throw new AccessDeniedException();
         }
@@ -36,6 +39,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
     @Override
     public PointPolicy createPointPolicy(Role userRole, PointPolicyCreateRequest pointPolicyCreateRequest) {
+        log.info("Service: createPointPolicy");
         if (userRole != Role.ADMIN) {
             throw new AccessDeniedException();
         }
@@ -53,6 +57,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
     @Override
     public List<PointPolicy> readPointPolicies(Role userRole) {
+        log.info("Service: readPointPolicies");
         if (userRole != Role.ADMIN) {
             throw new AccessDeniedException();
         }
