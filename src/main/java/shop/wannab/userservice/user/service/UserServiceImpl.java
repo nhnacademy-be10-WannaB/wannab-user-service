@@ -2,6 +2,7 @@ package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -157,6 +158,15 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole())
                 .build();
         return loginResponse;
+    }
+
+    @Override
+    public boolean duplicated(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            return true;
+        }
+        return false;
     }
 
     //TODO 배포전 삭제

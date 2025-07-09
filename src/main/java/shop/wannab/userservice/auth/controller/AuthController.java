@@ -1,7 +1,6 @@
 package shop.wannab.userservice.auth.controller;
 
 import jakarta.validation.Valid;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +21,8 @@ import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.auth.service.AuthService;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
-import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
+import shop.wannab.userservice.utils.ResponseCode;
 
 @Slf4j
 @RestController
@@ -45,11 +44,10 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> createUser(@RequestBody @Valid UserCreateRequest userCreateDTO) {
+    public Response<Void> createUser(@RequestBody @Valid UserCreateRequest userCreateDTO) {
         log.info("Controller: createUser");
-        User user = userService.createUser(userCreateDTO);
-        URI uri = URI.create("/api/users/" + user.getUserId());
-        return ResponseEntity.created(uri).body(user);
+        userService.createUser(userCreateDTO);
+        return new Response<>(null, ResponseCode.SUCCESS, null);
     }
 
     @PostMapping("/token")
@@ -83,4 +81,11 @@ public class AuthController {
         boolean result = authService.unlock(request);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/duplicated")
+    public Response<Boolean> duplicated(@RequestParam("id") String userId) {
+        Boolean duplicated = userService.duplicated(userId);
+        return new Response<>(duplicated, ResponseCode.SUCCESS, null);
+    }
+
 }
