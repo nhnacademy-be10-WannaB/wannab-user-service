@@ -17,6 +17,8 @@ public final class ResponseCode {
     // 02 auth
     public static final String PAYCO_SIGNUP_SUCESS = "02001";
     public static final String PAYCO_LOGIN_SUCESS = "02002";
+    public static final String USER_ALREADY_EXISTS = "02050";
+    public static final String USER_NOT_FOUND = "02051";
 
     // 03 point
 
