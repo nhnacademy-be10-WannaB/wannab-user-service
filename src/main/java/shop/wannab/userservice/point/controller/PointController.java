@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import shop.wannab.userservice.user.domain.entity.Role;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.Util;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class PointController {
@@ -32,6 +34,7 @@ public class PointController {
 
     @GetMapping("/api/users/points")
     public ResponseEntity<Integer> readPoints(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+        log.info("Controller: readPoints");
         int points = userService.readPoint(userId);
         return ResponseEntity.ok(points);
     }
@@ -39,6 +42,7 @@ public class PointController {
     @PostMapping("/api/users/points")
     public ResponseEntity<Void> updatePoint(@RequestHeader(Util.HEADER_ID_NAME) Long userId,
                                             @RequestBody @Valid PointUpdateDTO pointUpdateDTO) {
+        log.info("Controller: updatePoint");
         userService.updatePoint(userId, pointUpdateDTO);
         return ResponseEntity.noContent().build();
     }
@@ -46,6 +50,7 @@ public class PointController {
     @PostMapping("/api/users/points-histories")
     public ResponseEntity<PointHistory> createPointHistory(@RequestHeader(Util.HEADER_ID_NAME) Long userId,
                                                            @RequestBody @Valid PointHistoryCreateDTO pointHistoryCreateDTO) {
+        log.info("Controller: createPointHistory");
 
         PointHistory pointHistory = pointHistoryService.createPointHistory(userId, pointHistoryCreateDTO);
         URI uri = URI.create("/api/users/" + userId + "/point-histories");
@@ -54,6 +59,7 @@ public class PointController {
 
     @GetMapping("/api/users/point-histories")
     public ResponseEntity<List<PointHistory>> readPointHistory(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+        log.info("Controller: readPointHistory");
         List<PointHistory> pointHistories = pointHistoryService.readPointHistories(userId);
         return ResponseEntity.ok(pointHistories);
     }
@@ -61,6 +67,7 @@ public class PointController {
     @PutMapping("/api/reward-rates")
     public ResponseEntity<PointPolicy> updatePointPolicy(@RequestHeader(Util.HEADER_ROLE_NAME) Role userRole,
                                                          @RequestBody @Valid PointPolicyUpdateDTO pointPolicyUpdateDTO) {
+        log.info("Controller: updatePointPolicy");
         PointPolicy pointPolicy = pointPolicyService.updatePointPolicy(userRole, pointPolicyUpdateDTO);
         return ResponseEntity.ok(pointPolicy);
     }
@@ -68,6 +75,7 @@ public class PointController {
     @PostMapping("/api/reward-rates")
     public ResponseEntity<PointPolicy> createPointPolicy(@RequestHeader(Util.HEADER_ROLE_NAME) Role userRole,
                                                          @RequestBody PointPolicyCreateRequest pointPolicyCreateRequest) {
+        log.info("Controller: createPointPolicy");
         PointPolicy pointPolicy = pointPolicyService.createPointPolicy(userRole, pointPolicyCreateRequest);
         URI uri = URI.create("/api/reward-rates");
         return ResponseEntity.created(uri).body(pointPolicy);
@@ -76,6 +84,7 @@ public class PointController {
     @GetMapping("/api/reward-rates")
     public ResponseEntity<List<PointPolicy>> readPointPolicy(
             @RequestHeader(Util.HEADER_ROLE_NAME) Role userRole) {
+        log.info("Controller: readPointPolicy");
         List<PointPolicy> pointPolicyList = pointPolicyService.readPointPolicies(userRole);
         return ResponseEntity.ok(pointPolicyList);
     }

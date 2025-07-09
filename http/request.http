@@ -15,6 +15,9 @@ GET http://localhost:10386/api/users
 Content-Type: application/json
 X-USER-ID: 1
 
+### 휴면상태 변경 ACTIVATE -> INACTIVATE
+GET http://127.0.0.1:10386/api/users/human/1
+
 ###
 PATCH http://localhost:8082/api/users/1
 Content-Type: application/json
