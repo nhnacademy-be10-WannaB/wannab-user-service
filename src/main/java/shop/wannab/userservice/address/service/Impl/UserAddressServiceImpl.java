@@ -3,6 +3,7 @@ package shop.wannab.userservice.address.service.Impl;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.address.domain.dto.UserAddressCreateRequest;
@@ -17,6 +18,7 @@ import shop.wannab.userservice.address.service.UserAddressService;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserAddressServiceImpl implements UserAddressService {
@@ -27,6 +29,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional(readOnly = true)
     public List<UserAddressResponse> findByUserId(Long userId) {
+        log.info("Service: findByUserId");
         List<UserAddress> userAddresses = userAddressRepository.findAllByUser(userService.readUser(userId));
         return userAddresses.stream()
                 .map(userAddress -> UserAddressResponse.builder()
@@ -41,6 +44,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional(readOnly = true)
     public UserAddressResponse findByUserIdAndAddressId(Long userId, Long addressId) {
+        log.info("Service: findByUserIdAndAddressId");
         User user = userService.readUser(userId);
 
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
@@ -57,6 +61,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional
     public void save(Long userId, UserAddressCreateRequest request) {
+        log.info("Service: save");
         User user = userService.readUser(userId);
         long addressCount = userAddressRepository.countByUser(user);
         if (addressCount >= 10) {
@@ -77,6 +82,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional
     public void update(Long userId, Long addressId, UserAddressUpdateRequest request) {
+        log.info("Service: update");
         User user = userService.readUser(userId);
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);
@@ -91,6 +97,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional
     public void deleteByUserIdAndAddressId(Long userId, Long addressId) {
+        log.info("Service: deleteByUserIdAndAddressId");
         User user = userService.readUser(userId);
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);

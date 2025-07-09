@@ -35,6 +35,7 @@ public class AuthService {
     private final DoorayMessageClient doorayMessageClient;
 
     public TokenResponse login(TokenRequest tokenRequest) {
+        log.info("Service: login");
         String accessToken = jwtUtil.createAccessToken(tokenRequest.userId(), tokenRequest.role());
         String refreshToken = jwtUtil.createRefreshToken(tokenRequest.userId(), tokenRequest.role());
         redisTemplate.opsForHash().put(REFRESH_KEY, String.valueOf(tokenRequest.userId()), refreshToken);
@@ -42,6 +43,7 @@ public class AuthService {
     }
 
     public Response<PaycoLoginResponse> paycoLogin(PaycoLoginRequest paycoLoginRequest) {
+        log.info("Service: paycoLogin");
         if (userRepository.existsByProviderId(paycoLoginRequest.providerId())) {
             User user = userRepository.findByProviderId(paycoLoginRequest.providerId()).get();
             String token = (String) redisTemplate.opsForHash().get("refresh_token:", "1");
@@ -56,6 +58,7 @@ public class AuthService {
     }
 
     public User buildUserByPaycoLoginRequest(PaycoLoginRequest paycoLoginRequest) {
+        log.info("Service: buildUserByPaycoLoginRequest");
         String token = (String) redisTemplate.opsForHash().get("refresh_token:", "1");
         log.info("token: {}", token);
         return User.builder()
