@@ -145,4 +145,12 @@ public class UserServiceImpl implements UserService {
         return loginResponse;
     }
 
+    //TODO 배포전 삭제
+    @Override
+    public User human(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setState(State.INACTIVATE);
+        return user;
+    }
+
 }
