@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
         userRepository.save(user);
-        couponClient.issueWelcomeCoupon(user.getUserId());
+//        couponClient.issueWelcomeCoupon(user.getUserId());
         return user;
     }
 

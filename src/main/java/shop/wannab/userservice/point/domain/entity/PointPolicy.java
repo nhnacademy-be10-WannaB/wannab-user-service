@@ -29,4 +29,7 @@ public class PointPolicy {
     private Integer addRate;
 
     private Integer addPoint;
+
+    @Builder.Default
+    private Boolean active = true;
 }
