@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(long userId) {
         log.info("Service: logout");
-        redisTemplate.opsForHash().delete(REFRESH_KEY, userId);
+        redisTemplate.opsForHash().delete(REFRESH_KEY, String.valueOf(userId));
     }
 
     @Override
