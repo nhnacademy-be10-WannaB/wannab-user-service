@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final CouponClient couponClient;
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
+    private final RabbitTemplate rabbitTemplate;
 
     public User createUser(UserCreateRequest userCreateDTO) {
         log.info("Service: createUser");
@@ -57,7 +59,13 @@ public class UserServiceImpl implements UserService {
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
         userRepository.save(user);
+
         couponClient.issueWelcomeCoupon(user.getUserId());
+
+
+        long userId = user.getUserId();
+        rabbitTemplate.convertAndSend("wannab.user.exchange","user.signup.event",userId);
+
         return user;
     }
 
@@ -135,7 +143,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(long userId) {
         log.info("Service: logout");
-        redisTemplate.opsForHash().delete(REFRESH_KEY, userId);
+        redisTemplate.opsForHash().delete(REFRESH_KEY, String.valueOf(userId));
     }
 
     @Override

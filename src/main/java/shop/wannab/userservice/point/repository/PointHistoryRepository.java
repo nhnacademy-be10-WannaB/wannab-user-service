@@ -8,4 +8,6 @@ import shop.wannab.userservice.user.domain.entity.User;
 
 public interface PointHistoryRepository extends JpaRepository<PointHistory, Long> {
     List<PointHistory> findAllByUser(User user);
+
+    List<PointHistory> findPointHistoriesByOrderId(Long orderId);
 }

@@ -33,6 +33,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         pointPolicy.setAddRate(pointPolicyUpdateDTO.addRate());
         pointPolicy.setAddPoint(pointPolicyUpdateDTO.addPoint());
+        pointPolicy.setActive(pointPolicyUpdateDTO.active());
 
         return pointPolicy;
     }

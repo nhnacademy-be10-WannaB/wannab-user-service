@@ -6,6 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 public record PointPolicyUpdateDTO(@NotBlank String name,
                                    @PositiveOrZero @Max(100) int addRate,
-                                   @PositiveOrZero int addPoint) {
+                                   @PositiveOrZero int addPoint,
+                                   Boolean active) {
 
 }
