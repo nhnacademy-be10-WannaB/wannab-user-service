@@ -13,11 +13,11 @@ public class PointHistoryResponse {
     private int totalPoints;
     private ZonedDateTime createdAt;
 
-    public PointHistoryResponse(PointHistory ph) {
-        this.pointsHistoryId = ph.getPointsHistoryId();
-        this.pointHistoryReason = ph.getPointHistoryReason();
-        this.pointHistoryChange = ph.getPointHistoryChange();
-        this.totalPoints = ph.getTotalPoints();
-        this.createdAt = ph.getCreatedAt();
+    public PointHistoryResponse(PointHistory pointHistory) {
+        this.pointsHistoryId = pointHistory.getPointsHistoryId();
+        this.pointHistoryReason = pointHistory.getPointHistoryReason();
+        this.pointHistoryChange = pointHistory.getPointHistoryChange();
+        this.totalPoints = pointHistory.getTotalPoints();
+        this.createdAt = pointHistory.getCreatedAt();
     }
 }

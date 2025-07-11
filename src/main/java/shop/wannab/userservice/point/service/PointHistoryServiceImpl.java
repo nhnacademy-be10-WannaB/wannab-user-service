@@ -47,6 +47,7 @@ public class PointHistoryServiceImpl implements PointHistoryService {
         log.info("Service: readPointHistories");
         User user = userService.readUser(userId);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return pointHistoryRepository.findAllByUser(user, pageable);
+        Page<PointHistory> pointHistories = pointHistoryRepository.findAllByUser(user, pageable);
+        return pointHistories.map(PointHistoryResponse::new);
     }
 }
