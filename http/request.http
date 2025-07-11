@@ -173,3 +173,9 @@ Content-Type: application/json
 ### 주소 삭제
 DELETE http://localhost:8082/api/users/1/addresses/1
 X-USER-ID: 1
+
+
+### 포인트 내역 조회
+
+GET http://127.0.0.1:10386/api/users/point-histories?page=0&size=10
+X-USER-ID: 1

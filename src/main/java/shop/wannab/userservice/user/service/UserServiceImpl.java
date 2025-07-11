@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         long userId = user.getUserId();
-        rabbitTemplate.convertAndSend("wannab.user.exchange","user.signup.event",userId);
+//        rabbitTemplate.convertAndSend("wannab.user.exchange","user.signup.event",userId);
         return user;
     }
 
