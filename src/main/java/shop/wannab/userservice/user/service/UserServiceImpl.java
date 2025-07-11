@@ -60,8 +60,12 @@ public class UserServiceImpl implements UserService {
                 .build();
         userRepository.save(user);
 
+        couponClient.issueWelcomeCoupon(user.getUserId());
+
+
         long userId = user.getUserId();
         rabbitTemplate.convertAndSend("wannab.user.exchange","user.signup.event",userId);
+
         return user;
     }
 
