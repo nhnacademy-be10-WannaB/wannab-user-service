@@ -11,8 +11,6 @@ public interface PointHistoryService {
 
     Page<PointHistoryResponse> readPointHistories(long userId, int page, int size);
 
-    List<PointHistory> readPointHistories(long userId);
-
     void rollbackPointHistory(PointHistoryRollbackPointDTO pointHistoryRollbackPointDTO);
 
     void cancel(Long orderId);
