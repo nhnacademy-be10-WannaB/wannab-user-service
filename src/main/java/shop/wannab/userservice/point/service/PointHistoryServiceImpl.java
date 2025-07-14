@@ -3,9 +3,14 @@ package shop.wannab.userservice.point.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.point.domain.dto.PointHistoryCreateDTO;
+import shop.wannab.userservice.point.domain.dto.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.dto.PointHistoryRollbackPointDTO;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.point.domain.entity.PointHistory;
@@ -63,10 +68,12 @@ public class PointHistoryServiceImpl implements PointHistoryService {
 
     @Override
     // 후에 페이지로 바꾸겠습니다.
-    public List<PointHistory> readPointHistories(long userId) {
+    public Page<PointHistoryResponse> readPointHistories(long userId, int page, int size) {
         log.info("Service: readPointHistories");
         User user = userService.readUser(userId);
-        return pointHistoryRepository.findAllByUser(user);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<PointHistory> pointHistories = pointHistoryRepository.findAllByUser(user, pageable);
+        return pointHistories.map(PointHistoryResponse::new);
     }
 
     /**
