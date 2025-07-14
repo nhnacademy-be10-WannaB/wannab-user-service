@@ -57,6 +57,11 @@ public class PointHistoryServiceImpl implements PointHistoryService {
         double rewardRates = user.getUserGrade().getReward_rate();
         int changePoints = (int) (pointHistoryCreateDTO.orderTotalPrice() * rewardRates);
         int totalPoints = user.getPoints() + changePoints;
+        PointPolicy policy = pointPolicyRepository.findByPolicyName("기본적립률").orElse(null);
+        if (policy != null) {
+            totalPoints += policy.getAddRate() * pointHistoryCreateDTO.orderTotalPrice();
+            changePoints += policy.getAddRate();
+        }
         PointHistory pointHistory = PointHistory.builder().
                 user(user)
                 .pointHistoryReason("도서구매")
