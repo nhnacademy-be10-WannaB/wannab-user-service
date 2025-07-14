@@ -5,6 +5,7 @@ import shop.wannab.userservice.point.domain.dto.PointHistoryCreateDTO;
 import shop.wannab.userservice.point.domain.dto.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.dto.PointHistoryRollbackPointDTO;
 import shop.wannab.userservice.point.domain.entity.PointHistory;
+import shop.wannab.userservice.user.domain.entity.User;
 
 public interface PointHistoryService {
     PointHistory createPointHistory(PointHistoryCreateDTO pointHistoryCreateDTO);
@@ -17,4 +18,7 @@ public interface PointHistoryService {
 
     void refund(Long orderId, int amount);
 
+    void createReviewPoints(Long orderId);
+
+    void createSignupPoints(User user);
 }
