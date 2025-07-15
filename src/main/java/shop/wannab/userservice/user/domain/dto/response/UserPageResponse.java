@@ -11,5 +11,7 @@ public record UserPageResponse(String name,
                                LocalDate birth,
                                String username,
                                String password,
-                               int points) {
+                               int points,
+                               String grade
+) {
 }
