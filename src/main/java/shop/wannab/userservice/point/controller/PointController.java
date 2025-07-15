@@ -68,14 +68,14 @@ public class PointController {
      *
      * @param pointHistoryCreateDTO
      */
-    @PostMapping("/api/users/points-histories")
-    public ResponseEntity<PointHistory> createPointHistory(
-            @RequestBody @Valid PointHistoryCreateDTO pointHistoryCreateDTO) {
-        log.info("Controller: createPointHistory");
-
-        PointHistory pointHistory = pointHistoryService.createPointHistory(pointHistoryCreateDTO);
-        return ResponseEntity.ok(pointHistory);
-    }
+//    @PostMapping("/api/users/points-histories")
+//    public ResponseEntity<PointHistory> createPointHistory(
+//            @RequestBody @Valid PointHistoryCreateDTO pointHistoryCreateDTO) {
+//        log.info("Controller: createPointHistory");
+//
+//        PointHistory pointHistory = pointHistoryService.createPointHistory(pointHistoryCreateDTO);
+//        return ResponseEntity.ok(pointHistory);
+//    }
 
     /**
      * 포인트 내역 조회
