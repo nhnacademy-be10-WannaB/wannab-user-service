@@ -1,4 +1,4 @@
-package shop.wannab.userservice;
+package shop.wannab.userservice.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
