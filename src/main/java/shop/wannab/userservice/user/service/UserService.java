@@ -5,12 +5,15 @@ import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
+import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.User;
 
 public interface UserService {
     User createUser(UserCreateRequest userCreateDTO);
 
     User readUser(long userId);
+
+    UserPageResponse readUserPageResponse(long userId);
 
     User updateUser(long userId, UserUpdateRequest userupdateDTO);
 

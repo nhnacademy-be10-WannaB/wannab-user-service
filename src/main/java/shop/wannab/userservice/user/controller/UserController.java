@@ -31,17 +31,8 @@ public class UserController {
     @GetMapping
     public ResponseEntity<UserPageResponse> readUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
         log.info("Controller: readUser");
-        User user = userService.readUser(userId);
-        UserPageResponse response = UserPageResponse.builder()
-                .username(user.getUsername())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .birth(user.getBirth())
-                .nickname(user.getNickname())
-                .password(user.getPassword())
-                .points(user.getPoints())
-                .build();
+        UserPageResponse response = userService.readUserPageResponse(userId);
+
         return ResponseEntity.ok().body(response);
     }
 
@@ -59,6 +50,7 @@ public class UserController {
                 .nickname(user.getNickname())
                 .password(user.getPassword())
                 .points(user.getPoints())
+                .grade(user.getUserGrade().getGradeName())
                 .build();
         return ResponseEntity.ok().body(response);
     }
