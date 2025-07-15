@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +25,6 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.user.client.CartClient;
-import shop.wannab.userservice.user.client.CouponClient;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.entity.Role;
@@ -57,8 +55,6 @@ class UserServiceImplTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
     @Mock
-    private CouponClient couponClient;
-    @Mock
     private JwtUtil jwtUtil;
     @Mock
     private RabbitTemplate rabbitTemplate;
@@ -84,7 +80,6 @@ class UserServiceImplTest {
         assertThrows(UserAlreadyExistsException.class, () -> userService.createUser(request));
     }
 
-    @Disabled
     @Test
     @DisplayName("정상적인 회원가입 시 모든 외부 의존 호출이 발생하고 User가 반환된다")
     void createUser_success() {

@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.client.CartClient;
-import shop.wannab.userservice.user.client.CouponClient;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
@@ -35,7 +34,6 @@ public class UserServiceImpl implements UserService {
     private final UserGradeRepository userGradeRepository;
     private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final CouponClient couponClient;
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
     private final RabbitTemplate rabbitTemplate;
@@ -62,10 +60,9 @@ public class UserServiceImpl implements UserService {
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
         userRepository.save(user);
-//        couponClient.issueWelcomeCoupon(user.getUserId());
-//
-//        long userId = user.getUserId();
-//        rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
+
+        long userId = user.getUserId();
+        rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
 
         return user;
     }
