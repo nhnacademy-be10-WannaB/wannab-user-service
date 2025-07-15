@@ -1,9 +1,6 @@
 package shop.wannab.userservice.global.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +10,8 @@ public class RabbitMQConfig {
     private static final String EXCHANGE_NAME = "wannab.user.exchange";
     private static final String QUEUE_NAME = "wannab.welcome.coupon.queue";
     private static final String ROUTING_KEY = "user.signup.event";
+
+    public static final String ORDER_QUEUE = "wannab.order.created.user.queue";
 
     @Bean
     public DirectExchange exchange() {
@@ -25,7 +24,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding binding(DirectExchange exchange,Queue queue){
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
+    public Queue orderUserQueue() {
+        return new Queue(ORDER_QUEUE);
     }
+
 }

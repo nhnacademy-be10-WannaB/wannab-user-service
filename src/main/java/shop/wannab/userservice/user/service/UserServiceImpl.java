@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.user.client.CartClient;
-import shop.wannab.userservice.user.client.CouponClient;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
+import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.RefreshTokenNotMatchException;
@@ -34,7 +34,6 @@ public class UserServiceImpl implements UserService {
     private final UserGradeRepository userGradeRepository;
     private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final CouponClient couponClient;
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
     private final RabbitTemplate rabbitTemplate;
@@ -48,7 +47,9 @@ public class UserServiceImpl implements UserService {
             cartClient.createCart();
         } catch (Exception e) {
         }
-
+        if (userGradeRepository.findByGradeName("Standard") == null) {
+            throw new RuntimeException();
+        }
         User user = User.builder()
                 .password(userCreateDTO.password())
                 .username(userCreateDTO.username())
@@ -60,11 +61,8 @@ public class UserServiceImpl implements UserService {
                 .build();
         userRepository.save(user);
 
-        couponClient.issueWelcomeCoupon(user.getUserId());
-
-
         long userId = user.getUserId();
-        rabbitTemplate.convertAndSend("wannab.user.exchange","user.signup.event",userId);
+        rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
 
         return user;
     }
@@ -74,6 +72,24 @@ public class UserServiceImpl implements UserService {
         log.info("Service: readUser");
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
+    }
+
+    @Override
+    public UserPageResponse readUserPageResponse(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
+        UserPageResponse response = UserPageResponse.builder()
+                .username(user.getUsername())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .birth(user.getBirth())
+                .nickname(user.getNickname())
+                .password(user.getPassword())
+                .points(user.getPoints())
+                .grade(user.getUserGrade().getGradeName())
+                .build();
+        return response;
     }
 
     @Override

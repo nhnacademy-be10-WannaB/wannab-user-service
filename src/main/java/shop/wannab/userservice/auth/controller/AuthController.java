@@ -20,7 +20,9 @@ import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.auth.service.AuthService;
 import shop.wannab.userservice.global.Response;
+import shop.wannab.userservice.point.service.PointHistoryService;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
+import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.ResponseCode;
 
@@ -32,6 +34,7 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final PointHistoryService pointHistoryService;
 
 
     @PostMapping("/reissue")
@@ -46,7 +49,8 @@ public class AuthController {
     @PostMapping("/signup")
     public Response<Void> createUser(@RequestBody @Valid UserCreateRequest userCreateDTO) {
         log.info("Controller: createUser");
-        userService.createUser(userCreateDTO);
+        User user = userService.createUser(userCreateDTO);
+        pointHistoryService.createSignupPoints(user);
         return new Response<>(null, ResponseCode.SUCCESS, null);
     }
 
