@@ -18,7 +18,7 @@ public interface PointHistoryService {
 
     void refund(Long orderId, int amount);
 
-    void createReviewPoints(Long orderId);
+    void createReviewPoints(Long userId);
 
     void createSignupPoints(User user);
 }

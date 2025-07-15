@@ -170,15 +170,14 @@ public class PointHistoryServiceImpl implements PointHistoryService {
     }
 
     @Override
-    public void createReviewPoints(Long orderId) {
-        List<PointHistory> pointHistories = pointHistoryRepository.findPointHistoriesByOrderId(orderId);
-        User user = pointHistories.get(0).getUser();
+    public void createReviewPoints(Long userId) {
+        User user = userService.readUser(userId);
         PointPolicy policy = pointPolicyRepository.findByPolicyName("리뷰작성").orElse(null);
         if (policy != null) {
             int point = policy.getAddPoint();
             int totalPoints = user.getPoints() + point;
             PointHistory pointHistory = PointHistory.builder()
-                    .orderId(orderId)
+                    .orderId(userId)
                     .user(user)
                     .pointHistoryChange(point)
                     .pointHistoryReason("리뷰작성")

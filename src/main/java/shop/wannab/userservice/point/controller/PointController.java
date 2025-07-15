@@ -161,8 +161,8 @@ public class PointController {
      * 리뷰 작성 시 포인트적립 및 내역생성
      */
     @PostMapping("/api/points/reviews")
-    public ResponseEntity<Void> createReviewPoints(@RequestParam Long orderId) {
-        pointHistoryService.createReviewPoints(orderId);
+    public ResponseEntity<Void> createReviewPoints(@RequestParam Long userId) {
+        pointHistoryService.createReviewPoints(userId);
         return ResponseEntity.ok().build();
     }
 
