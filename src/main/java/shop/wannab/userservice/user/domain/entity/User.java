@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
@@ -37,7 +37,7 @@ public class User {
     private String password;
 
     @Column(name = "user_username", unique = true)
-    private String username;
+    private String userLoginId;
 
     @Column(name = "user_name")
     private String name;
@@ -45,9 +45,9 @@ public class User {
     @Column(name = "user_email")
     private String email;
 
-    @Builder.Default
+    @NotNull
     @Column(name = "nickname")
-    private String nickname = "unknown";
+    private String nickname;
 
     @Column(name = "user_phone")
     private String phone;
@@ -55,27 +55,26 @@ public class User {
     @Column(name = "user_birth")
     private LocalDate birth;
 
-    @Builder.Default
+    @NotNull
     @Column(name = "user_create_at")
-    private LocalDate creationAt = LocalDate.now();
+    private LocalDate creationAt;
 
-    @Builder.Default
     @Column(name = "user_last_login_at")
-    private LocalDate lastLoginAt = null;
+    private LocalDate lastLoginAt;
 
-    @Builder.Default
+    @NotNull
     @Column(name = "points")
-    private int points = 0;
+    private Integer points;
 
-    @Builder.Default
+    @NotNull
     @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
-    private Role role = Role.USER;
+    private Role role;
 
-    @Builder.Default
+    @NotNull
     @Column(name = "user_state")
     @Enumerated(EnumType.STRING)
-    private State state = State.ACTIVATE;
+    private State state;
 
     @Column(name = "provider_id")
     private String providerId;
@@ -83,8 +82,51 @@ public class User {
     @Column(name = "provider_name")
     private String providerName;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "grade_id")
     private UserGrade userGrade;
+
+
+    // 회원가입
+    public User(String password, String userLoginId, String name, String email, String phone, LocalDate birth,
+                String providerName, String providerId, UserGrade userGrade) {
+        // 공용
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.birth = birth;
+
+        // 일반 전용
+        this.password = password;
+        this.userLoginId = userLoginId;
+
+        // 소셜 전용
+        this.providerName = providerName;
+        this.providerId = providerId;
+
+        // 공용 설정
+        this.nickname = "unknown";
+        this.creationAt = LocalDate.now();
+        this.lastLoginAt = null;
+        this.points = 0;
+        this.role = Role.USER;
+        this.state = State.ACTIVATE;
+        this.userGrade = userGrade;
+    }
+
+    // 일반 회원가입
+    @Builder(builderMethodName = "standard")
+    public User(String password, String userLoginId, String name, String email, String phone,
+                LocalDate birth, UserGrade userGrade) {
+        this(password, userLoginId, name, email, phone, birth, null, null, userGrade);
+    }
+
+    // 소셜 회원가입
+    @Builder(builderMethodName = "social")
+    public User(String providerId, String providerName, String name, String email, LocalDate birth, String phone,
+                UserGrade userGrade) {
+        this(null, null, name, email, phone, birth, providerName, providerId, userGrade);
+    }
 }

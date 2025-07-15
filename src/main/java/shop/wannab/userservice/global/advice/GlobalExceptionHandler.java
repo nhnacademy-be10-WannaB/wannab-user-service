@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import shop.wannab.userservice.global.Response;
+import shop.wannab.userservice.point.exception.FeignClientException;
 import shop.wannab.userservice.user.domain.dto.ErrorResponse;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
@@ -27,6 +28,12 @@ public class GlobalExceptionHandler {
     public Response<Void> handleUserAlreadyExistsException(RuntimeException e) {
         log.info("Exception: handleUserAlreadyExistsException");
         return new Response<>(null, ResponseCode.USER_ALREADY_EXISTS, e.getMessage());
+    }
+
+    @ExceptionHandler({FeignClientException.class})
+    public Response<Void> feignClientException(RuntimeException e) {
+        log.info("Exception: feignClientException");
+        return new Response<>(null, ResponseCode.FEIGN_CLIENT_EXCEPTION, e.getMessage());
     }
 
 }
