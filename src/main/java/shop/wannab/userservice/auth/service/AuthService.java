@@ -3,7 +3,7 @@ package shop.wannab.userservice.auth.service;
 import static shop.wannab.userservice.utils.JwtUtil.REFRESH_KEY;
 
 import jakarta.transaction.Transactional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +70,7 @@ public class AuthService {
     }
 
     public void unlockRequest(String userId) {
-        int code = new Random().nextInt(900000) + 100000;
+        int code = ThreadLocalRandom.current().nextInt(100000, 1_000000);
         redisTemplate.opsForValue().set("UNLOCK_CODE:" + userId, code, 3, TimeUnit.MINUTES);
         doorayMessageClient.sendUnlockCode(SendMessageRequest.unlockCodeMessage(userId, code));
     }
