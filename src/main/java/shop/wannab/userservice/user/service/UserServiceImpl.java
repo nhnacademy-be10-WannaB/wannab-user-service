@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import shop.wannab.userservice.auth.controller.response.ReissueResponse;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
-import shop.wannab.userservice.point.exception.FeignClientException;
 import shop.wannab.userservice.user.client.CartClient;
 import shop.wannab.userservice.user.client.CouponClient;
 import shop.wannab.userservice.user.domain.dto.CartCreateRequest;
@@ -49,6 +48,8 @@ public class UserServiceImpl implements UserService {
     private final RabbitTemplate rabbitTemplate;
     private final EntityManager entityManager;
 
+
+    @Override
     public void createUser(@Valid UserCreateRequest userCreateDTO) {
         log.info("Service: createUser");
         if (userRepository.existsByUserLoginId(userCreateDTO.username())) {
@@ -62,18 +63,22 @@ public class UserServiceImpl implements UserService {
                 .email(userCreateDTO.email())
                 .phone(userCreateDTO.phone())
                 .birth(userCreateDTO.birth())
+                .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
         userRepository.save(user);
         entityManager.flush();
         entityManager.refresh(user);
 
         long userId = user.getUserId();
-        rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
+        try {
+            rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
+        } catch (Exception e) {
+        }
 
         try {
             cartClient.createCart(new CartCreateRequest(user.getUserId()));
         } catch (Exception e) {
-            throw new FeignClientException(e.getMessage());
+//            throw new FeignClientException(e.getMessage());
         }
     }
 
