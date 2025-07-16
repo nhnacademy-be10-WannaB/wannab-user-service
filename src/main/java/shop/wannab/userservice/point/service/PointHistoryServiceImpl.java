@@ -46,7 +46,7 @@ public class PointHistoryServiceImpl implements PointHistoryService {
             PointHistory pointHistory = PointHistory.builder().
                     user(user)
                     .pointHistoryReason("도서구매 포인트 사용")
-                    .pointHistoryChange(pointHistoryCreateDTO.usedPoints())
+                    .pointHistoryChange(-1 * pointHistoryCreateDTO.usedPoints())
                     .totalPoints(totalPoints)
                     .orderId(pointHistoryCreateDTO.orderId())
                     .build();
@@ -118,7 +118,7 @@ public class PointHistoryServiceImpl implements PointHistoryService {
                 PointHistoryRollbackPointDTO pointHistoryRollbackPointDTO = PointHistoryRollbackPointDTO.builder()
                         .user(pointHistory.getUser())
                         .orderId(pointHistory.getOrderId())
-                        .pointHistoryChange(pointHistory.getPointHistoryChange())
+                        .pointHistoryChange(-1 * pointHistory.getPointHistoryChange())
                         .pointHistoryReason("포인트 적립 회수")
                         .totalPoints(totalPoints)
                         .build();
