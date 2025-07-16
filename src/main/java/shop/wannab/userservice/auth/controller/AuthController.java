@@ -38,7 +38,7 @@ public class AuthController {
 
 
     @PostMapping("/reissue")
-    public ResponseEntity refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
+    public ResponseEntity<ReissueResponse> refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
         log.info("Controller: refreshAccessToken");
 
         String newAccessToken = userService.reissueToken(reissueRequest.refreshToken());
@@ -70,18 +70,18 @@ public class AuthController {
     @GetMapping("/users")
     public UserResponse login(@RequestParam String loginId) {
         log.info("Controller: login");
-        UserResponse userResponse = userService.findByUsername(loginId);
+        UserResponse userResponse = userService.readUserResponse(loginId);
         return userResponse;
     }
 
     @PostMapping("/unlock/request")
-    public ResponseEntity unlock(@RequestBody String userId) {
+    public ResponseEntity<String> unlock(@RequestBody String userId) {
         authService.unlockRequest(userId);
         return ResponseEntity.ok().body(userId);
     }
 
     @PostMapping("/unlock/verify")
-    public ResponseEntity unlock(@RequestBody UnlockRequest request) {
+    public ResponseEntity<Boolean> unlock(@RequestBody UnlockRequest request) {
         boolean result = authService.unlock(request);
         return ResponseEntity.ok(result);
     }

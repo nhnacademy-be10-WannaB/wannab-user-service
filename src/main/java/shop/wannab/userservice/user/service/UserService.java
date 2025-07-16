@@ -17,8 +17,6 @@ public interface UserService {
 
     User updateUser(long userId, UserUpdateRequest userupdateDTO);
 
-    void saveRefreshToken(String refreshToken, Long userId);
-
     void deleteUser(long userId);
 
     int readPoint(long userId);
@@ -33,10 +31,7 @@ public interface UserService {
 
     List<Long> birthUserList(int month);
 
-    UserResponse findByUsername(String username);
+    UserResponse readUserResponse(String username);
 
     boolean duplicated(String username);
-
-    //TODO 배포전 삭제
-    User human(Long userId);
 }

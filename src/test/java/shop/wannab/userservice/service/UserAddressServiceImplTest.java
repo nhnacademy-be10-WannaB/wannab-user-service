@@ -23,7 +23,7 @@ import shop.wannab.userservice.address.exception.AlreadyExistsUserAddressExcepti
 import shop.wannab.userservice.address.exception.UserAddressFullException;
 import shop.wannab.userservice.address.exception.UserAddressNotFoundException;
 import shop.wannab.userservice.address.repository.UserAddressRepository;
-import shop.wannab.userservice.address.service.Impl.UserAddressServiceImpl;
+import shop.wannab.userservice.address.service.impl.UserAddressServiceImpl;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
 

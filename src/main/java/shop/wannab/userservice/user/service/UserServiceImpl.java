@@ -132,12 +132,7 @@ public class UserServiceImpl implements UserService {
         log.info("Service: existsUser");
         return userRepository.existsById(userId);
     }
-
-    @Override
-    public void saveRefreshToken(String refreshToken, Long userId) {
-        log.info("Service: saveRefreshToken");
-        redisTemplate.opsForHash().put(REFRESH_KEY, userId.toString(), refreshToken);
-    }
+    
 
     @Override
     public String reissueToken(String refreshToken) {
@@ -173,7 +168,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse findByUsername(String username) {
+    public UserResponse readUserResponse(String username) {
         log.info("Service: findByUsername");
         User user = userRepository.findByUsername(username).
                 orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
@@ -196,12 +191,5 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    //TODO 배포전 삭제
-    @Override
-    public User human(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-        user.setState(State.INACTIVATE);
-        return user;
-    }
 
 }

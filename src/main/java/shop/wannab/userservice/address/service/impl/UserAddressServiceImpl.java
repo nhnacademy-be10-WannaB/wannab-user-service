@@ -1,4 +1,4 @@
-package shop.wannab.userservice.address.service.Impl;
+package shop.wannab.userservice.address.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;

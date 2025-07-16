@@ -391,7 +391,7 @@ class UserServiceImplTest {
         given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
 
         // when
-        UserResponse result = userService.findByUsername(username);
+        UserResponse result = userService.readUserResponse(username);
 
         // then
         assertThat(result.userId()).isEqualTo(1L);
@@ -408,7 +408,7 @@ class UserServiceImplTest {
         given(userRepository.findByUsername(username)).willReturn(Optional.empty());
 
         // when & then
-        assertThrows(UserNotFoundException.class, () -> userService.findByUsername(username));
+        assertThrows(UserNotFoundException.class, () -> userService.readUserResponse(username));
     }
 
     @Test

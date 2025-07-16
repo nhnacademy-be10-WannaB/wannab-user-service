@@ -16,12 +16,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.point.domain.dto.PageResponse;
-import shop.wannab.userservice.point.domain.dto.PointHistoryCreateDTO;
 import shop.wannab.userservice.point.domain.dto.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.dto.PointPolicyCreateRequest;
 import shop.wannab.userservice.point.domain.dto.PointPolicyUpdateDTO;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
-import shop.wannab.userservice.point.domain.entity.PointHistory;
 import shop.wannab.userservice.point.domain.entity.PointPolicy;
 import shop.wannab.userservice.point.service.PointHistoryService;
 import shop.wannab.userservice.point.service.PointPolicyService;
@@ -63,19 +61,6 @@ public class PointController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * 포인트 내역 생성
-     *
-     * @param pointHistoryCreateDTO
-     */
-//    @PostMapping("/api/users/points-histories")
-//    public ResponseEntity<PointHistory> createPointHistory(
-//            @RequestBody @Valid PointHistoryCreateDTO pointHistoryCreateDTO) {
-//        log.info("Controller: createPointHistory");
-//
-//        PointHistory pointHistory = pointHistoryService.createPointHistory(pointHistoryCreateDTO);
-//        return ResponseEntity.ok(pointHistory);
-//    }
 
     /**
      * 포인트 내역 조회
