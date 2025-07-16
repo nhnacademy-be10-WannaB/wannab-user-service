@@ -15,6 +15,11 @@ spring:
       port: 6666
       password: ci-secret
       database: 123
+  rabbitmq:
+    host: 11.111.11.11
+    port: 1111
+    username: secret
+    password: secret
 
 dbcp2:
   datasource:
@@ -29,6 +34,7 @@ dbcp2:
     between-eviction-millis: 300000
     min-evictable-idle-millis: 600000
     num-tests-per-eviction-run: 3
+
 
 
 server:

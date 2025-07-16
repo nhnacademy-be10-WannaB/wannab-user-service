@@ -11,11 +11,13 @@ import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.domain.entity.UserGrade;
 
 public interface UserService {
-    void createUser(UserCreateRequest userCreateDTO);
+    User createUser(UserCreateRequest userCreateDTO);
 
     User readUser(long userId);
 
     UserPageResponse updateUser(long userId, UserUpdateRequest userUpdateDTO);
+
+    UserPageResponse readUserPageResponse(long userId);
 
     void saveRefreshToken(String refreshToken, Long userId);
 

@@ -15,8 +15,8 @@ import org.springframework.validation.annotation.Validated;
 import shop.wannab.userservice.auth.controller.response.ReissueResponse;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
+import shop.wannab.userservice.point.exception.FeignClientException;
 import shop.wannab.userservice.user.client.CartClient;
-import shop.wannab.userservice.user.client.CouponClient;
 import shop.wannab.userservice.user.domain.dto.CartCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
@@ -42,7 +42,6 @@ public class UserServiceImpl implements UserService {
     private final UserGradeRepository userGradeRepository;
     private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final CouponClient couponClient;
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
     private final RabbitTemplate rabbitTemplate;
@@ -50,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void createUser(@Valid UserCreateRequest userCreateDTO) {
+    public User createUser(@Valid UserCreateRequest userCreateDTO) {
         log.info("Service: createUser");
         if (userRepository.existsByUserLoginId(userCreateDTO.username())) {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
@@ -65,6 +64,7 @@ public class UserServiceImpl implements UserService {
                 .birth(userCreateDTO.birth())
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
+        
         userRepository.save(user);
         entityManager.flush();
         entityManager.refresh(user);
@@ -72,14 +72,11 @@ public class UserServiceImpl implements UserService {
         long userId = user.getUserId();
         try {
             rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
-        } catch (Exception e) {
-        }
-
-        try {
             cartClient.createCart(new CartCreateRequest(user.getUserId()));
         } catch (Exception e) {
-//            throw new FeignClientException(e.getMessage());
+            throw new FeignClientException(e.getMessage());
         }
+        return user;
     }
 
     @Override
@@ -87,6 +84,23 @@ public class UserServiceImpl implements UserService {
         log.info("Service: readUser");
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
+    }
+
+    @Override
+    public UserPageResponse readUserPageResponse(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
+        return UserPageResponse.builder()
+                .username(user.getUserLoginId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .birth(user.getBirth())
+                .nickname(user.getNickname())
+                .password(user.getPassword())
+                .points(user.getPoints())
+                .grade(user.getUserGrade().getGradeName())
+                .build();
     }
 
     @Override

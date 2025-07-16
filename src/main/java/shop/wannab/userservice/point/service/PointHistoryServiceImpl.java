@@ -14,7 +14,9 @@ import shop.wannab.userservice.point.domain.dto.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.dto.PointHistoryRollbackPointDTO;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
 import shop.wannab.userservice.point.domain.entity.PointHistory;
+import shop.wannab.userservice.point.domain.entity.PointPolicy;
 import shop.wannab.userservice.point.repository.PointHistoryRepository;
+import shop.wannab.userservice.point.repository.PointPolicyRepository;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.service.UserService;
@@ -26,6 +28,7 @@ import shop.wannab.userservice.user.service.UserService;
 public class PointHistoryServiceImpl implements PointHistoryService {
     private final PointHistoryRepository pointHistoryRepository;
     private final UserService userService;
+    private final PointPolicyRepository pointPolicyRepository;
 
     /**
      * 결제에 대한 포인트 내역 생성
@@ -54,6 +57,11 @@ public class PointHistoryServiceImpl implements PointHistoryService {
         double rewardRates = user.getUserGrade().getReward_rate();
         int changePoints = (int) (pointHistoryCreateDTO.orderTotalPrice() * rewardRates);
         int totalPoints = user.getPoints() + changePoints;
+        PointPolicy policy = pointPolicyRepository.findByPolicyName("기본적립률").orElse(null);
+        if (policy != null) {
+            totalPoints += policy.getAddRate() * pointHistoryCreateDTO.orderTotalPrice();
+            changePoints += policy.getAddRate();
+        }
         PointHistory pointHistory = PointHistory.builder().
                 user(user)
                 .pointHistoryReason("도서구매")
@@ -159,6 +167,44 @@ public class PointHistoryServiceImpl implements PointHistoryService {
             }
         }
         cancel(orderId);
+    }
+
+    @Override
+    public void createReviewPoints(Long userId) {
+        User user = userService.readUser(userId);
+        PointPolicy policy = pointPolicyRepository.findByPolicyName("리뷰작성").orElse(null);
+        if (policy != null) {
+            int point = policy.getAddPoint();
+            int totalPoints = user.getPoints() + point;
+            PointHistory pointHistory = PointHistory.builder()
+                    .orderId(userId)
+                    .user(user)
+                    .pointHistoryChange(point)
+                    .pointHistoryReason("리뷰작성")
+                    .totalPoints(totalPoints)
+                    .build();
+            pointHistoryRepository.save(pointHistory);
+            userService.updatePoint(user.getUserId(), new PointUpdateDTO(totalPoints));
+        }
+
+    }
+
+    @Override
+    public void createSignupPoints(User user) {
+        PointPolicy policy = pointPolicyRepository.findByPolicyName("회원가입").orElse(null);
+        if (policy != null) {
+            int point = policy.getAddPoint();
+            int totalPoints = user.getPoints() + point;
+            PointHistory pointHistory = PointHistory.builder()
+                    .user(user)
+                    .pointHistoryChange(point)
+                    .pointHistoryReason("회원가입")
+                    .totalPoints(totalPoints)
+                    .build();
+            pointHistoryRepository.save(pointHistory);
+            userService.updatePoint(user.getUserId(), new PointUpdateDTO(totalPoints));
+        }
+
     }
 
     public void pointExists(int totalPoints) {

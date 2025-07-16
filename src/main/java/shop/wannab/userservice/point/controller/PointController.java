@@ -68,14 +68,14 @@ public class PointController {
      *
      * @param pointHistoryCreateDTO
      */
-    @PostMapping("/api/users/points-histories")
-    public ResponseEntity<PointHistory> createPointHistory(
-            @RequestBody @Valid PointHistoryCreateDTO pointHistoryCreateDTO) {
-        log.info("Controller: createPointHistory");
-
-        PointHistory pointHistory = pointHistoryService.createPointHistory(pointHistoryCreateDTO);
-        return ResponseEntity.ok(pointHistory);
-    }
+//    @PostMapping("/api/users/points-histories")
+//    public ResponseEntity<PointHistory> createPointHistory(
+//            @RequestBody @Valid PointHistoryCreateDTO pointHistoryCreateDTO) {
+//        log.info("Controller: createPointHistory");
+//
+//        PointHistory pointHistory = pointHistoryService.createPointHistory(pointHistoryCreateDTO);
+//        return ResponseEntity.ok(pointHistory);
+//    }
 
     /**
      * 포인트 내역 조회
@@ -155,6 +155,15 @@ public class PointController {
         log.info("Controller: readPointPolicy");
         List<PointPolicy> pointPolicyList = pointPolicyService.readPointPolicies(userRole);
         return ResponseEntity.ok(pointPolicyList);
+    }
+
+    /**
+     * 리뷰 작성 시 포인트적립 및 내역생성
+     */
+    @PostMapping("/api/points/reviews")
+    public ResponseEntity<Void> createReviewPoints(@RequestParam Long userId) {
+        pointHistoryService.createReviewPoints(userId);
+        return ResponseEntity.ok().build();
     }
 
 }
