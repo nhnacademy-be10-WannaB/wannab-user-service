@@ -130,11 +130,11 @@ class AuthServiceTest {
             String key = "UNLOCK_CODE:" + userId;
 
             UnlockRequest request = new UnlockRequest(userId, code);
-            User user = new User();
+            User user = User.standard().build();
             user.setState(State.INACTIVATE);
 
             when(valueOperations.get(key)).thenReturn(String.valueOf(code));
-            when(userRepository.findByUsername(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findByUserLoginId(userId)).thenReturn(Optional.of(user));
 
             // when
             boolean result = authService.unlock(request);

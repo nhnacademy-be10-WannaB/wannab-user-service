@@ -41,9 +41,9 @@ public class AuthController {
     public ResponseEntity refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
         log.info("Controller: refreshAccessToken");
 
-        String newAccessToken = userService.reissueToken(reissueRequest.refreshToken());
+        ReissueResponse reissueResponse = userService.reissueToken(reissueRequest.refreshToken());
 
-        return ResponseEntity.ok(new ReissueResponse(newAccessToken));
+        return ResponseEntity.ok(reissueResponse);
     }
 
     @PostMapping("/signup")
