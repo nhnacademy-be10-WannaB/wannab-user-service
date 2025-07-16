@@ -22,7 +22,6 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
@@ -33,22 +32,27 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
+    @Setter
     @Column(name = "user_password")
     private String password;
 
     @Column(name = "user_username", unique = true)
     private String userLoginId;
 
+    @Setter
     @Column(name = "user_name")
     private String name;
 
+    @Setter
     @Column(name = "user_email")
     private String email;
 
+    @Setter
     @NotNull
     @Column(name = "nickname")
     private String nickname;
 
+    @Setter
     @Column(name = "user_phone")
     private String phone;
 
@@ -59,10 +63,12 @@ public class User {
     @Column(name = "user_create_at")
     private LocalDate creationAt;
 
+    @Setter
     @Column(name = "user_last_login_at")
     private LocalDate lastLoginAt;
 
     @NotNull
+    @Setter
     @Column(name = "points")
     private Integer points;
 
@@ -72,6 +78,7 @@ public class User {
     private Role role;
 
     @NotNull
+    @Setter
     @Column(name = "user_state")
     @Enumerated(EnumType.STRING)
     private State state;
@@ -83,6 +90,7 @@ public class User {
     private String providerName;
 
     @NotNull
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "grade_id")
@@ -90,8 +98,8 @@ public class User {
 
 
     // 회원가입
-    public User(String password, String userLoginId, String name, String email, String phone, LocalDate birth,
-                String providerName, String providerId, UserGrade userGrade) {
+    private User(String password, String userLoginId, String name, String email, String phone, LocalDate birth,
+                 String providerName, String providerId, UserGrade userGrade) {
         // 공용
         this.name = name;
         this.email = email;
