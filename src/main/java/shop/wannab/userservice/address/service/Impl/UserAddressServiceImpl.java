@@ -10,7 +10,6 @@ import shop.wannab.userservice.address.domain.dto.UserAddressCreateRequest;
 import shop.wannab.userservice.address.domain.dto.UserAddressResponse;
 import shop.wannab.userservice.address.domain.dto.UserAddressUpdateRequest;
 import shop.wannab.userservice.address.domain.entity.UserAddress;
-import shop.wannab.userservice.address.exception.AlreadyExistsUserAddressException;
 import shop.wannab.userservice.address.exception.UserAddressFullException;
 import shop.wannab.userservice.address.exception.UserAddressNotFoundException;
 import shop.wannab.userservice.address.repository.UserAddressRepository;
@@ -66,8 +65,6 @@ public class UserAddressServiceImpl implements UserAddressService {
         long addressCount = userAddressRepository.countByUser(user);
         if (addressCount >= 10) {
             throw new UserAddressFullException("주소는 최대 10개까지 등록할 수 있습니다.");
-        } else if (userAddressRepository.existsByAddressName(request.getAddressName())) {
-            throw new AlreadyExistsUserAddressException("이미 존재하는 주소입니다.");
         }
         UserAddress entity = UserAddress.builder()
                 .addressName(request.getAddressName())
