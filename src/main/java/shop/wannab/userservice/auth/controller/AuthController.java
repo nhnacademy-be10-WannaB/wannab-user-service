@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.auth.controller.request.PaycoLoginRequest;
 import shop.wannab.userservice.auth.controller.request.ReissueRequest;
+import shop.wannab.userservice.auth.controller.request.TokenPayloadRequest;
 import shop.wannab.userservice.auth.controller.request.TokenRequest;
 import shop.wannab.userservice.auth.controller.request.UnlockRequest;
 import shop.wannab.userservice.auth.controller.response.PaycoLoginResponse;
 import shop.wannab.userservice.auth.controller.response.ReissueResponse;
+import shop.wannab.userservice.auth.controller.response.TokenPayloadResponse;
 import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.auth.service.AuthService;
@@ -86,6 +88,12 @@ public class AuthController {
     public Response<Boolean> duplicated(@RequestParam("id") String userId) {
         Boolean duplicated = userService.duplicated(userId);
         return new Response<>(duplicated, ResponseCode.SUCCESS, null);
+    }
+
+    @PostMapping("/info")
+    public ResponseEntity<TokenPayloadResponse> info(@RequestBody @Valid TokenPayloadRequest tokenPayloadRequest) {
+        TokenPayloadResponse response = authService.getTokenPayload(tokenPayloadRequest);
+        return ResponseEntity.ok(response);
     }
 
 }
