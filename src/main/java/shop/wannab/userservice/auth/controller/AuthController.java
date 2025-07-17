@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shop.wannab.userservice.auth.controller.request.PaycoLoginRequest;
 import shop.wannab.userservice.auth.controller.request.ReissueRequest;
+import shop.wannab.userservice.auth.controller.request.TokenPayloadRequest;
 import shop.wannab.userservice.auth.controller.request.TokenRequest;
 import shop.wannab.userservice.auth.controller.request.UnlockRequest;
 import shop.wannab.userservice.auth.controller.response.PaycoLoginResponse;
 import shop.wannab.userservice.auth.controller.response.ReissueResponse;
+import shop.wannab.userservice.auth.controller.response.TokenPayloadResponse;
 import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.auth.service.AuthService;
@@ -38,12 +40,12 @@ public class AuthController {
 
 
     @PostMapping("/reissue")
-    public ResponseEntity refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
+    public ResponseEntity<ReissueResponse> refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
         log.info("Controller: refreshAccessToken");
 
-        String newAccessToken = userService.reissueToken(reissueRequest.refreshToken());
+        ReissueResponse reissueResponse = userService.reissueToken(reissueRequest.refreshToken());
 
-        return ResponseEntity.ok(new ReissueResponse(newAccessToken));
+        return ResponseEntity.ok(reissueResponse);
     }
 
     @PostMapping("/signup")
@@ -70,18 +72,18 @@ public class AuthController {
     @GetMapping("/users")
     public UserResponse login(@RequestParam String loginId) {
         log.info("Controller: login");
-        UserResponse userResponse = userService.findByUsername(loginId);
+        UserResponse userResponse = userService.readUserResponse(loginId);
         return userResponse;
     }
 
     @PostMapping("/unlock/request")
-    public ResponseEntity unlock(@RequestBody String userId) {
+    public ResponseEntity<String> unlock(@RequestBody String userId) {
         authService.unlockRequest(userId);
         return ResponseEntity.ok().body(userId);
     }
 
     @PostMapping("/unlock/verify")
-    public ResponseEntity unlock(@RequestBody UnlockRequest request) {
+    public ResponseEntity<Boolean> unlock(@RequestBody UnlockRequest request) {
         boolean result = authService.unlock(request);
         return ResponseEntity.ok(result);
     }
@@ -90,6 +92,12 @@ public class AuthController {
     public Response<Boolean> duplicated(@RequestParam("id") String userId) {
         Boolean duplicated = userService.duplicated(userId);
         return new Response<>(duplicated, ResponseCode.SUCCESS, null);
+    }
+
+    @PostMapping("/info")
+    public ResponseEntity<TokenPayloadResponse> info(@RequestBody @Valid TokenPayloadRequest tokenPayloadRequest) {
+        TokenPayloadResponse response = authService.getTokenPayload(tokenPayloadRequest);
+        return ResponseEntity.ok(response);
     }
 
 }

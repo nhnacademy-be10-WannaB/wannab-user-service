@@ -1,6 +1,7 @@
 package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -9,14 +10,19 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import shop.wannab.userservice.auth.controller.response.ReissueResponse;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
+import shop.wannab.userservice.point.exception.FeignClientException;
 import shop.wannab.userservice.user.client.CartClient;
+import shop.wannab.userservice.user.domain.dto.CartCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
+import shop.wannab.userservice.user.domain.entity.UserGrade;
 import shop.wannab.userservice.user.exception.RefreshTokenNotMatchException;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
@@ -28,6 +34,7 @@ import shop.wannab.userservice.utils.JwtUtil;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Validated
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -37,33 +44,37 @@ public class UserServiceImpl implements UserService {
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
     private final RabbitTemplate rabbitTemplate;
+    private final EntityManager entityManager;
 
+
+    @Override
     public User createUser(UserCreateRequest userCreateDTO) {
         log.info("Service: createUser");
-        if (userRepository.existsByUsername(userCreateDTO.username())) {
+        if (userRepository.existsByUserLoginId(userCreateDTO.username())) {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
         }
-        try {
-            cartClient.createCart();
-        } catch (Exception e) {
-        }
-        if (userGradeRepository.findByGradeName("Standard") == null) {
-            throw new RuntimeException();
-        }
-        User user = User.builder()
+
+        User user = User.standard()
                 .password(userCreateDTO.password())
-                .username(userCreateDTO.username())
+                .userLoginId(userCreateDTO.username())
                 .name(userCreateDTO.name())
                 .email(userCreateDTO.email())
                 .phone(userCreateDTO.phone())
                 .birth(userCreateDTO.birth())
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
+
         userRepository.save(user);
+        entityManager.flush();
+        entityManager.refresh(user);
 
         long userId = user.getUserId();
-        rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
-
+        try {
+            rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
+            cartClient.createCart(new CartCreateRequest(user.getUserId()));
+        } catch (Exception e) {
+            throw new FeignClientException(e.getMessage());
+        }
         return user;
     }
 
@@ -78,8 +89,8 @@ public class UserServiceImpl implements UserService {
     public UserPageResponse readUserPageResponse(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
-        UserPageResponse response = UserPageResponse.builder()
-                .username(user.getUsername())
+        return UserPageResponse.builder()
+                .username(user.getUserLoginId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
@@ -89,20 +100,29 @@ public class UserServiceImpl implements UserService {
                 .points(user.getPoints())
                 .grade(user.getUserGrade().getGradeName())
                 .build();
-        return response;
     }
 
     @Override
-    public User updateUser(long userId, UserUpdateRequest userupdateDTO) {
+    public UserPageResponse updateUser(long userId, UserUpdateRequest userUpdateDTO) {
         log.info("Service: updateUser");
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
-        user.setName(userupdateDTO.name());
-        user.setEmail(userupdateDTO.email());
-        user.setPhone(userupdateDTO.phone());
-        user.setNickname(userupdateDTO.nickname());
-        user.setPassword(userupdateDTO.password());
-        return userRepository.save(user);
+        User user = readUser(userId);
+        user.setName(userUpdateDTO.name());
+        user.setEmail(userUpdateDTO.email());
+        user.setPhone(userUpdateDTO.phone());
+        user.setNickname(userUpdateDTO.nickname());
+        user.setPassword(userUpdateDTO.password());
+        userRepository.save(user);
+
+        return UserPageResponse.builder()
+                .username(user.getUserLoginId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .birth(user.getBirth())
+                .nickname(user.getNickname())
+                .password(user.getPassword())
+                .points(user.getPoints())
+                .build();
     }
 
     @Override
@@ -133,14 +153,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsById(userId);
     }
 
-    @Override
-    public void saveRefreshToken(String refreshToken, Long userId) {
-        log.info("Service: saveRefreshToken");
-        redisTemplate.opsForHash().put(REFRESH_KEY, userId.toString(), refreshToken);
-    }
 
     @Override
-    public String reissueToken(String refreshToken) {
+    public ReissueResponse reissueToken(String refreshToken) {
         log.info("Service: reissueToken");
         Claims claims = jwtUtil.parseToken(refreshToken);
         Long userId = claims.get("userId", Long.class);
@@ -153,7 +168,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String newAccessToken = jwtUtil.createAccessToken(userId, role);
-        return newAccessToken;
+        return new ReissueResponse(newAccessToken);
     }
 
     @Override
@@ -168,40 +183,32 @@ public class UserServiceImpl implements UserService {
         if (month < 1 || month > 12) {
             throw new IllegalArgumentException("월(month)은 1~12 사이여야 합니다.");
         }
-        List<Long> users = userRepository.findUserIdsByBirthMonth(month);
-        return users;
+        return userRepository.findUserIdsByBirthMonth(month);
     }
 
     @Override
-    public UserResponse findByUsername(String username) {
+    public UserResponse readUserResponse(String username) {
         log.info("Service: findByUsername");
-        User user = userRepository.findByUsername(username).
+        User user = userRepository.findByUserLoginId(username).
                 orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
-        UserResponse loginResponse = UserResponse.builder()
-                .loginId(user.getUsername())
+        return UserResponse.builder()
+                .loginId(user.getUserLoginId())
                 .password(user.getPassword())
                 .userId(user.getUserId())
                 .state(user.getState())
                 .role(user.getRole())
                 .build();
-        return loginResponse;
     }
 
     @Override
     public boolean duplicated(String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isPresent()) {
-            return true;
-        }
-        return false;
+        Optional<User> user = userRepository.findByUserLoginId(username);
+        return user.isPresent();
     }
 
-    //TODO 배포전 삭제
     @Override
-    public User human(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-        user.setState(State.INACTIVATE);
-        return user;
+    public UserGrade getStandardUserGrade() {
+        return userGradeRepository.findByGradeName("Standard");
     }
 
 }

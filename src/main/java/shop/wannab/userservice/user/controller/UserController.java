@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -18,7 +17,7 @@ import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
-import shop.wannab.userservice.utils.Util;
+import shop.wannab.userservice.utils.HeaderUtil;
 
 @Slf4j
 @RestController
@@ -29,41 +28,29 @@ public class UserController {
 
 
     @GetMapping
-    public ResponseEntity<UserPageResponse> readUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+    public ResponseEntity<UserPageResponse> readMyPageUser(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId) {
         log.info("Controller: readUser");
         UserPageResponse response = userService.readUserPageResponse(userId);
-
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
-    public ResponseEntity<UserPageResponse> updateUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId,
-                                                       @RequestBody @Valid UserUpdateRequest userupdateDTO) {
+    public ResponseEntity<UserPageResponse> updateUser(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId,
+                                                       @RequestBody @Valid UserUpdateRequest userUpdateDTO) {
         log.info("Controller: updateUser");
-        User user = userService.updateUser(userId, userupdateDTO);
-        UserPageResponse response = UserPageResponse.builder()
-                .username(user.getUsername())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .birth(user.getBirth())
-                .nickname(user.getNickname())
-                .password(user.getPassword())
-                .points(user.getPoints())
-                .grade(user.getUserGrade().getGradeName())
-                .build();
+        UserPageResponse response = userService.updateUser(userId, userUpdateDTO);
         return ResponseEntity.ok().body(response);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+    public ResponseEntity<Void> deleteUser(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId) {
         log.info("Controller: deleteUser");
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<User> logout(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+    public ResponseEntity<User> logout(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId) {
         log.info("Controller: logout");
         userService.logout(userId);
         return ResponseEntity.noContent().build();
@@ -73,12 +60,5 @@ public class UserController {
     public List<Long> birthUserList(@RequestParam int month) {
         log.info("Controller: birthUserList");
         return userService.birthUserList(month);
-    }
-
-    // TODO: 휴면인증해제 테스트 api, 배포전 삭제
-    @GetMapping("/human/{userId}")
-    public ResponseEntity<User> humanUserList(@PathVariable Long userId) {
-        User user = userService.human(userId);
-        return ResponseEntity.ok().body(user);
     }
 }
