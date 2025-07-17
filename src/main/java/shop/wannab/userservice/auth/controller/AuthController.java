@@ -102,7 +102,7 @@ public class AuthController {
     }
 
     @PutMapping("/lastLogin")
-    public ResponseEntity<Void> updateLastLogin(@RequestParam Long userId) {
+    public ResponseEntity<Void> updateLastLogin(@RequestParam("userId") Long userId) {
         log.info("Controller: updateLastLogin");
         authService.updateLastLogin(userId);
         return ResponseEntity.noContent().build();
