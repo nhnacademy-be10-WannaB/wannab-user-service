@@ -38,6 +38,4 @@ public interface UserService {
     boolean duplicated(String username);
 
     UserGrade getStandardUserGrade();
-
-    void updateLastLogin(Long userId);
 }
