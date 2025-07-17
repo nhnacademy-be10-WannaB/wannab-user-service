@@ -2,6 +2,7 @@ package shop.wannab.userservice.auth.service;
 
 import static shop.wannab.userservice.utils.JwtUtil.REFRESH_KEY;
 
+import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -12,9 +13,11 @@ import org.springframework.stereotype.Service;
 import shop.wannab.userservice.auth.DoorayMessageClient;
 import shop.wannab.userservice.auth.controller.request.PaycoLoginRequest;
 import shop.wannab.userservice.auth.controller.request.SendMessageRequest;
+import shop.wannab.userservice.auth.controller.request.TokenPayloadRequest;
 import shop.wannab.userservice.auth.controller.request.TokenRequest;
 import shop.wannab.userservice.auth.controller.request.UnlockRequest;
 import shop.wannab.userservice.auth.controller.response.PaycoLoginResponse;
+import shop.wannab.userservice.auth.controller.response.TokenPayloadResponse;
 import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.entity.State;
@@ -90,5 +93,10 @@ public class AuthService {
 
         redisTemplate.delete(key);
         return true;
+    }
+
+    public TokenPayloadResponse getTokenPayload(TokenPayloadRequest tokenPayloadRequest) {
+        Claims claims = jwtUtil.parseToken(tokenPayloadRequest.token());
+        return new TokenPayloadResponse(claims);
     }
 }
