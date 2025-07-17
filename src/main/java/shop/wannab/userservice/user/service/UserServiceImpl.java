@@ -68,9 +68,10 @@ public class UserServiceImpl implements UserService {
         entityManager.flush();
         entityManager.refresh(user);
 
-        long userId = user.getUserId();
+        Long userIdToSend = user.getUserId();
         try {
-            rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
+            rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", String.valueOf(userIdToSend));
+            log.info("rabbitMq Producer");
             cartClient.createCart(new CartCreateRequest(user.getUserId()));
         } catch (Exception e) {
             throw new FeignClientException(e.getMessage());
