@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -616,7 +615,7 @@ class UserServiceImplTest {
 
         // MQ에서 예외 발생하도록 설정
         willThrow(new RuntimeException("MQ 실패")).given(rabbitTemplate)
-                .convertAndSend(anyString(), anyString(), anyLong());
+                .convertAndSend(anyString(), anyString(), anyString());
 
         // when / then
         assertThatThrownBy(() -> userService.createUser(request))

@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shop.wannab.userservice.user.controller.UserController;
@@ -27,7 +27,7 @@ import shop.wannab.userservice.utils.HeaderUtil;
 
 @DisplayName("UserController 테스트")
 @WebMvcTest(UserController.class)
-@TestPropertySource(properties = "spring.config.import=optional:configserver:")
+@ActiveProfiles("ci")
 class UserControllerTest {
 
     @Autowired
