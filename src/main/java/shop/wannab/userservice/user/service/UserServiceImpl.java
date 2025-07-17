@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
                 .birth(userCreateDTO.birth())
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
-        
+
         userRepository.save(user);
         entityManager.flush();
         entityManager.refresh(user);
@@ -153,7 +153,7 @@ public class UserServiceImpl implements UserService {
         log.info("Service: existsUser");
         return userRepository.existsById(userId);
     }
-    
+
 
     @Override
     public ReissueResponse reissueToken(String refreshToken) {
@@ -211,22 +211,5 @@ public class UserServiceImpl implements UserService {
     public UserGrade getStandardUserGrade() {
         return userGradeRepository.findByGradeName("Standard");
     }
-
-
-    @Override
-    public UserPageResponse readMyPageUser(Long userId) {
-        User user = readUser(userId);
-        return UserPageResponse.builder()
-                .username(user.getUserLoginId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .birth(user.getBirth())
-                .nickname(user.getNickname())
-                .password(user.getPassword())
-                .points(user.getPoints())
-                .build();
-    }
-
 
 }
