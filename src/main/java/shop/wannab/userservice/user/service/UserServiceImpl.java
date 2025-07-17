@@ -2,7 +2,6 @@ package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityManager;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User createUser(@Valid UserCreateRequest userCreateDTO) {
+    public User createUser(UserCreateRequest userCreateDTO) {
         log.info("Service: createUser");
         if (userRepository.existsByUserLoginId(userCreateDTO.username())) {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
                 .birth(userCreateDTO.birth())
                 .userGrade(userGradeRepository.findByGradeName("Standard"))
                 .build();
-        
+
         userRepository.save(user);
         entityManager.flush();
         entityManager.refresh(user);
