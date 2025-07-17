@@ -19,19 +19,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import shop.wannab.userservice.address.controller.UserAddressController;
 import shop.wannab.userservice.address.domain.dto.request.UserAddressCreateRequest;
-import shop.wannab.userservice.address.domain.dto.response.UserAddressResponse;
 import shop.wannab.userservice.address.domain.dto.request.UserAddressUpdateRequest;
+import shop.wannab.userservice.address.domain.dto.response.UserAddressResponse;
 import shop.wannab.userservice.address.exception.AlreadyExistsUserAddressException;
 import shop.wannab.userservice.address.exception.UserAddressFullException;
 import shop.wannab.userservice.address.exception.UserAddressNotFoundException;
 import shop.wannab.userservice.address.service.UserAddressService;
 
+@ActiveProfiles("ci")
 @DisplayName("UserAddressController 테스트")
-@TestPropertySource(properties = "spring.config.import=optional:configserver:")
 @WebMvcTest(UserAddressController.class)
 class UserAddressControllerTest {
 
