@@ -1,4 +1,4 @@
-package shop.wannab.userservice.auth.controller.response;
+package shop.wannab.userservice.auth.dto.response;
 
 import lombok.Builder;
 import shop.wannab.userservice.user.domain.entity.Role;

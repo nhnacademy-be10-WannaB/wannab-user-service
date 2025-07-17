@@ -1,4 +1,4 @@
-package shop.wannab.userservice.auth.controller.response;
+package shop.wannab.userservice.auth.dto.response;
 
 public record TokenResponse(String accessToken, String refreshToken) {
 }

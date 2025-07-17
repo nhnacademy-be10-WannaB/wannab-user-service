@@ -1,4 +1,4 @@
-package shop.wannab.userservice.auth.controller.request;
+package shop.wannab.userservice.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

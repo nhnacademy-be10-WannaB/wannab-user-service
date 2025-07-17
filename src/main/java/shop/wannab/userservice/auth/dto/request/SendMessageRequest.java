@@ -1,4 +1,4 @@
-package shop.wannab.userservice.auth.controller.request;
+package shop.wannab.userservice.auth.dto.request;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

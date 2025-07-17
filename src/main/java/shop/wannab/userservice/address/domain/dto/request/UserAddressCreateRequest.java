@@ -1,4 +1,4 @@
-package shop.wannab.userservice.address.domain.dto;
+package shop.wannab.userservice.address.domain.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 @Data
-public class UserAddressUpdateRequest {
+public class UserAddressCreateRequest {
     @Size(max = 30)
     private String addressName;
     @NotNull

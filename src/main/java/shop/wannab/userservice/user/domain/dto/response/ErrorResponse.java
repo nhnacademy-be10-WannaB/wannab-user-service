@@ -1,4 +1,4 @@
-package shop.wannab.userservice.user.domain.dto;
+package shop.wannab.userservice.user.domain.dto.response;
 
 
 import lombok.AllArgsConstructor;
