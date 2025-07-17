@@ -2,6 +2,7 @@ package shop.wannab.userservice.user.service;
 
 import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -209,6 +210,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserGrade getStandardUserGrade() {
         return userGradeRepository.findByGradeName("Standard");
+    }
+
+    @Override
+    public void updateLastLogin(Long userId) {
+        User user = readUser(userId);
+        user.setLastLoginAt(LocalDate.now());
     }
 
 }
