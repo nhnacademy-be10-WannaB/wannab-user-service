@@ -24,4 +24,7 @@ public final class ResponseCode {
 
     // 04 user
 
+    // 05 global
+    public static final String FEIGN_CLIENT_EXCEPTION = "05001";
+
 }

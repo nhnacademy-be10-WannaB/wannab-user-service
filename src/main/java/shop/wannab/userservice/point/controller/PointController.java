@@ -25,7 +25,7 @@ import shop.wannab.userservice.point.service.PointHistoryService;
 import shop.wannab.userservice.point.service.PointPolicyService;
 import shop.wannab.userservice.user.domain.entity.Role;
 import shop.wannab.userservice.user.service.UserService;
-import shop.wannab.userservice.utils.Util;
+import shop.wannab.userservice.utils.HeaderUtil;
 
 @Slf4j
 @RestController
@@ -41,7 +41,7 @@ public class PointController {
      * @param userId
      */
     @GetMapping("/api/users/points")
-    public ResponseEntity<Integer> readPoints(@RequestHeader(Util.HEADER_ID_NAME) Long userId) {
+    public ResponseEntity<Integer> readPoints(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId) {
         log.info("Controller: readPoints");
         int points = userService.readPoint(userId);
         return ResponseEntity.ok(points);
@@ -54,7 +54,7 @@ public class PointController {
      * @param pointUpdateDTO
      */
     @PostMapping("/api/users/points")
-    public ResponseEntity<Void> updatePoint(@RequestHeader(Util.HEADER_ID_NAME) Long userId,
+    public ResponseEntity<Void> updatePoint(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId,
                                             @RequestBody @Valid PointUpdateDTO pointUpdateDTO) {
         log.info("Controller: updatePoint");
         userService.updatePoint(userId, pointUpdateDTO);
@@ -69,7 +69,7 @@ public class PointController {
      */
     @GetMapping("/api/users/point-histories")
     public ResponseEntity<PageResponse<PointHistoryResponse>> readPointHistory(
-            @RequestHeader(Util.HEADER_ID_NAME) Long userId,
+            @RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         log.info("Controller: readPointHistory");
@@ -106,7 +106,7 @@ public class PointController {
      * @param pointPolicyUpdateDTO
      */
     @PutMapping("/api/reward-rates")
-    public ResponseEntity<PointPolicy> updatePointPolicy(@RequestHeader(Util.HEADER_ROLE_NAME) Role userRole,
+    public ResponseEntity<PointPolicy> updatePointPolicy(@RequestHeader(HeaderUtil.HEADER_ROLE_NAME) Role userRole,
                                                          @RequestBody @Valid PointPolicyUpdateDTO pointPolicyUpdateDTO) {
         log.info("Controller: updatePointPolicy");
         PointPolicy pointPolicy = pointPolicyService.updatePointPolicy(userRole, pointPolicyUpdateDTO);
@@ -120,7 +120,7 @@ public class PointController {
      * @param pointPolicyCreateRequest
      */
     @PostMapping("/api/reward-rates")
-    public ResponseEntity<PointPolicy> createPointPolicy(@RequestHeader(Util.HEADER_ROLE_NAME) Role userRole,
+    public ResponseEntity<PointPolicy> createPointPolicy(@RequestHeader(HeaderUtil.HEADER_ROLE_NAME) Role userRole,
                                                          @RequestBody PointPolicyCreateRequest pointPolicyCreateRequest) {
         log.info("Controller: createPointPolicy");
         PointPolicy pointPolicy = pointPolicyService.createPointPolicy(userRole, pointPolicyCreateRequest);
@@ -136,7 +136,7 @@ public class PointController {
      */
     @GetMapping("/api/reward-rates")
     public ResponseEntity<List<PointPolicy>> readPointPolicy(
-            @RequestHeader(Util.HEADER_ROLE_NAME) Role userRole) {
+            @RequestHeader(HeaderUtil.HEADER_ROLE_NAME) Role userRole) {
         log.info("Controller: readPointPolicy");
         List<PointPolicy> pointPolicyList = pointPolicyService.readPointPolicies(userRole);
         return ResponseEntity.ok(pointPolicyList);

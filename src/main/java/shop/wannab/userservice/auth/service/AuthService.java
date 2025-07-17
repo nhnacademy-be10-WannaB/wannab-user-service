@@ -19,6 +19,7 @@ import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
+import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
 import shop.wannab.userservice.utils.ResponseCode;
@@ -61,8 +62,7 @@ public class AuthService {
         log.info("Service: buildUserByPaycoLoginRequest");
         String token = (String) redisTemplate.opsForHash().get("refresh_token:", "1");
         log.info("token: {}", token);
-        return User.builder()
-                .providerId(paycoLoginRequest.providerId())
+        return User.social().providerId(paycoLoginRequest.providerId())
                 .email(paycoLoginRequest.email())
                 .phone(paycoLoginRequest.phone())
                 .birth(paycoLoginRequest.birthday())
@@ -82,8 +82,10 @@ public class AuthService {
         if (savedCode == null || !(savedCode.toString().equals(String.valueOf(request.authenticationCode())))) {
             return false;
         }
-
-        User user = userRepository.findByUsername(request.userId()).get();
+        if (userRepository.existsByUserLoginId(request.userId())) {
+            throw new UserNotFoundException(request.userId());
+        }
+        User user = userRepository.findByUserLoginId(request.userId()).get();
         user.setState(State.ACTIVATE);
 
         redisTemplate.delete(key);
