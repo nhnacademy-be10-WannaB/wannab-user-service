@@ -570,6 +570,8 @@ class UserServiceImplTest {
         assertThat(result.getUserLoginId()).isEqualTo("newuser");
         assertThat(result.getUserId()).isEqualTo(100L);
 
+        // MQ와 Feign 호출 검증
+        then(rabbitTemplate).should().convertAndSend("wannab.user.exchange", "user.signup.event", 100L);
         then(cartClient).should().createCart(new CartCreateRequest(100L));
     }
 
