@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
                 .email(userCreateDTO.email())
                 .phone(userCreateDTO.phone())
                 .birth(userCreateDTO.birth())
-                .userGrade(userGradeRepository.findByGradeName("Standard"))
+                .userGrade(getStandardUserGrade())
                 .build();
 
         userRepository.save(user);
@@ -208,7 +208,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserGrade getStandardUserGrade() {
-        return userGradeRepository.findByGradeName("Standard");
+        return userGradeRepository.findByGradeName("Standard")
+                .orElseThrow(() -> new IllegalStateException("기본 등급(Standard)을 찾을 수 없습니다."));
     }
+
 
 }
