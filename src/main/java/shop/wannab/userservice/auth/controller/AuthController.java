@@ -22,7 +22,9 @@ import shop.wannab.userservice.auth.controller.response.TokenResponse;
 import shop.wannab.userservice.auth.controller.response.UserResponse;
 import shop.wannab.userservice.auth.service.AuthService;
 import shop.wannab.userservice.global.Response;
+import shop.wannab.userservice.point.service.PointHistoryService;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
+import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.ResponseCode;
 
@@ -34,21 +36,23 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final PointHistoryService pointHistoryService;
 
 
     @PostMapping("/reissue")
-    public ResponseEntity refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
+    public ResponseEntity<ReissueResponse> refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
         log.info("Controller: refreshAccessToken");
 
-        String newAccessToken = userService.reissueToken(reissueRequest.refreshToken());
+        ReissueResponse reissueResponse = userService.reissueToken(reissueRequest.refreshToken());
 
-        return ResponseEntity.ok(new ReissueResponse(newAccessToken));
+        return ResponseEntity.ok(reissueResponse);
     }
 
     @PostMapping("/signup")
     public Response<Void> createUser(@RequestBody @Valid UserCreateRequest userCreateDTO) {
         log.info("Controller: createUser");
-        userService.createUser(userCreateDTO);
+        User user = userService.createUser(userCreateDTO);
+        pointHistoryService.createSignupPoints(user);
         return new Response<>(null, ResponseCode.SUCCESS, null);
     }
 
@@ -68,18 +72,18 @@ public class AuthController {
     @GetMapping("/users")
     public UserResponse login(@RequestParam String loginId) {
         log.info("Controller: login");
-        UserResponse userResponse = userService.findByUsername(loginId);
+        UserResponse userResponse = userService.readUserResponse(loginId);
         return userResponse;
     }
 
     @PostMapping("/unlock/request")
-    public ResponseEntity unlock(@RequestBody String userId) {
+    public ResponseEntity<String> unlock(@RequestBody String userId) {
         authService.unlockRequest(userId);
         return ResponseEntity.ok().body(userId);
     }
 
     @PostMapping("/unlock/verify")
-    public ResponseEntity unlock(@RequestBody UnlockRequest request) {
+    public ResponseEntity<Boolean> unlock(@RequestBody UnlockRequest request) {
         boolean result = authService.unlock(request);
         return ResponseEntity.ok(result);
     }
