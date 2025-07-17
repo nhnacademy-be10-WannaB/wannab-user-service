@@ -61,4 +61,5 @@ public class UserController {
         log.info("Controller: birthUserList");
         return userService.birthUserList(month);
     }
+
 }

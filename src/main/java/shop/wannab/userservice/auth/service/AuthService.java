@@ -4,6 +4,7 @@ import static shop.wannab.userservice.utils.JwtUtil.REFRESH_KEY;
 
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -98,5 +99,10 @@ public class AuthService {
     public TokenPayloadResponse getTokenPayload(TokenPayloadRequest tokenPayloadRequest) {
         Claims claims = jwtUtil.parseToken(tokenPayloadRequest.token());
         return new TokenPayloadResponse(claims);
+    }
+
+    public void updateLastLogin(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setLastLoginAt(LocalDate.now());
     }
 }
