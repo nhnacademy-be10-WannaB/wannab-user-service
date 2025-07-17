@@ -1,4 +1,4 @@
-package shop.wannab.userservice.point.domain.dto;
+package shop.wannab.userservice.point.domain.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;

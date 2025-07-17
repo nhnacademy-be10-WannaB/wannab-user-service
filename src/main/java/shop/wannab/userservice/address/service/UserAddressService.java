@@ -1,9 +1,9 @@
 package shop.wannab.userservice.address.service;
 
 import java.util.List;
-import shop.wannab.userservice.address.domain.dto.UserAddressCreateRequest;
-import shop.wannab.userservice.address.domain.dto.UserAddressResponse;
-import shop.wannab.userservice.address.domain.dto.UserAddressUpdateRequest;
+import shop.wannab.userservice.address.domain.dto.request.UserAddressCreateRequest;
+import shop.wannab.userservice.address.domain.dto.response.UserAddressResponse;
+import shop.wannab.userservice.address.domain.dto.request.UserAddressUpdateRequest;
 
 public interface UserAddressService {
 

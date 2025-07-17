@@ -1,4 +1,4 @@
-package shop.wannab.userservice.point.domain.dto;
+package shop.wannab.userservice.point.domain.dto.response;
 
 
 import java.time.ZonedDateTime;

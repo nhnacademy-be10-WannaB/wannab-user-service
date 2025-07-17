@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import shop.wannab.userservice.point.domain.dto.PointHistoryCreateDTO;
+import shop.wannab.userservice.point.domain.dto.request.PointHistoryCreateDTO;
 import shop.wannab.userservice.point.service.PointHistoryService;
 
 import static shop.wannab.userservice.global.config.RabbitMQConfig.ORDER_QUEUE;

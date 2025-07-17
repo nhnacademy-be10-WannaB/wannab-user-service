@@ -1,4 +1,4 @@
-package shop.wannab.userservice.address.domain.dto;
+package shop.wannab.userservice.address.domain.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
