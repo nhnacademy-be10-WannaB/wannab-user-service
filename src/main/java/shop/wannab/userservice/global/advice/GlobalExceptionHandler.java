@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.point.exception.FeignClientException;
-import shop.wannab.userservice.user.domain.dto.ErrorResponse;
+import shop.wannab.userservice.user.domain.dto.response.ErrorResponse;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.utils.ResponseCode;

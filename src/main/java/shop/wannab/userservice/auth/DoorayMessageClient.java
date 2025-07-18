@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import shop.wannab.userservice.auth.controller.request.SendMessageRequest;
+import shop.wannab.userservice.auth.dto.request.SendMessageRequest;
 
 @FeignClient(
         name = "doorayMessageClient",

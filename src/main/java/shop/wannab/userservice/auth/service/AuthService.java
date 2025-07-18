@@ -4,6 +4,7 @@ import static shop.wannab.userservice.utils.JwtUtil.REFRESH_KEY;
 
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import shop.wannab.userservice.auth.DoorayMessageClient;
-import shop.wannab.userservice.auth.controller.request.PaycoLoginRequest;
-import shop.wannab.userservice.auth.controller.request.SendMessageRequest;
-import shop.wannab.userservice.auth.controller.request.TokenPayloadRequest;
-import shop.wannab.userservice.auth.controller.request.TokenRequest;
-import shop.wannab.userservice.auth.controller.request.UnlockRequest;
-import shop.wannab.userservice.auth.controller.response.PaycoLoginResponse;
-import shop.wannab.userservice.auth.controller.response.TokenPayloadResponse;
-import shop.wannab.userservice.auth.controller.response.TokenResponse;
+import shop.wannab.userservice.auth.dto.request.PaycoLoginRequest;
+import shop.wannab.userservice.auth.dto.request.SendMessageRequest;
+import shop.wannab.userservice.auth.dto.request.TokenPayloadRequest;
+import shop.wannab.userservice.auth.dto.request.TokenRequest;
+import shop.wannab.userservice.auth.dto.request.UnlockRequest;
+import shop.wannab.userservice.auth.dto.response.PaycoLoginResponse;
+import shop.wannab.userservice.auth.dto.response.TokenPayloadResponse;
+import shop.wannab.userservice.auth.dto.response.TokenResponse;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
@@ -98,5 +99,10 @@ public class AuthService {
     public TokenPayloadResponse getTokenPayload(TokenPayloadRequest tokenPayloadRequest) {
         Claims claims = jwtUtil.parseToken(tokenPayloadRequest.token());
         return new TokenPayloadResponse(claims);
+    }
+
+    public void updateLastLogin(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setLastLoginAt(LocalDate.now());
     }
 }

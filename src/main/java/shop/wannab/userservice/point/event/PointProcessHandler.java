@@ -11,10 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import shop.wannab.userservice.point.domain.dto.PointHistoryCreateDTO;
+import shop.wannab.userservice.point.domain.dto.request.PointHistoryCreateDTO;
 import shop.wannab.userservice.point.service.PointHistoryService;
-
-import static shop.wannab.userservice.global.config.RabbitMQConfig.ORDER_QUEUE;
 
 @Component
 @RequiredArgsConstructor
@@ -31,7 +29,7 @@ public class PointProcessHandler {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
-    @RabbitListener(queues = ORDER_QUEUE)
+    @RabbitListener(queues = "${queue.order-created.user}")
     public void handleOrderPointProcess(String pointHistoryCreationDtoPayload) throws JsonProcessingException {
         try {
             String json = objectMapper.readValue(pointHistoryCreationDtoPayload, String.class);

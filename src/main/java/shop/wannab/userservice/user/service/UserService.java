@@ -1,9 +1,9 @@
 package shop.wannab.userservice.user.service;
 
 import java.util.List;
-import shop.wannab.userservice.auth.controller.response.ReissueResponse;
-import shop.wannab.userservice.auth.controller.response.UserResponse;
-import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
+import shop.wannab.userservice.auth.dto.response.ReissueResponse;
+import shop.wannab.userservice.auth.dto.response.UserResponse;
+import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;

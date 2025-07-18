@@ -1,9 +1,9 @@
 package shop.wannab.userservice.point.service;
 
 import org.springframework.data.domain.Page;
-import shop.wannab.userservice.point.domain.dto.PointHistoryCreateDTO;
-import shop.wannab.userservice.point.domain.dto.PointHistoryResponse;
-import shop.wannab.userservice.point.domain.dto.PointHistoryRollbackPointDTO;
+import shop.wannab.userservice.point.domain.dto.request.PointHistoryCreateDTO;
+import shop.wannab.userservice.point.domain.dto.response.PointHistoryResponse;
+import shop.wannab.userservice.point.domain.dto.request.PointHistoryRollbackPointDTO;
 import shop.wannab.userservice.point.domain.entity.PointHistory;
 import shop.wannab.userservice.user.domain.entity.User;
 

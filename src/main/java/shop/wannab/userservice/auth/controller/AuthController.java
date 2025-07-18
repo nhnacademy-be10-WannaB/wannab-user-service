@@ -6,20 +6,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import shop.wannab.userservice.auth.controller.request.PaycoLoginRequest;
-import shop.wannab.userservice.auth.controller.request.ReissueRequest;
-import shop.wannab.userservice.auth.controller.request.TokenPayloadRequest;
-import shop.wannab.userservice.auth.controller.request.TokenRequest;
-import shop.wannab.userservice.auth.controller.request.UnlockRequest;
-import shop.wannab.userservice.auth.controller.response.PaycoLoginResponse;
-import shop.wannab.userservice.auth.controller.response.ReissueResponse;
-import shop.wannab.userservice.auth.controller.response.TokenPayloadResponse;
-import shop.wannab.userservice.auth.controller.response.TokenResponse;
-import shop.wannab.userservice.auth.controller.response.UserResponse;
+import shop.wannab.userservice.auth.dto.request.PaycoLoginRequest;
+import shop.wannab.userservice.auth.dto.request.ReissueRequest;
+import shop.wannab.userservice.auth.dto.request.TokenPayloadRequest;
+import shop.wannab.userservice.auth.dto.request.TokenRequest;
+import shop.wannab.userservice.auth.dto.request.UnlockRequest;
+import shop.wannab.userservice.auth.dto.response.PaycoLoginResponse;
+import shop.wannab.userservice.auth.dto.response.ReissueResponse;
+import shop.wannab.userservice.auth.dto.response.TokenPayloadResponse;
+import shop.wannab.userservice.auth.dto.response.TokenResponse;
+import shop.wannab.userservice.auth.dto.response.UserResponse;
 import shop.wannab.userservice.auth.service.AuthService;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.point.service.PointHistoryService;
@@ -98,6 +99,13 @@ public class AuthController {
     public ResponseEntity<TokenPayloadResponse> info(@RequestBody @Valid TokenPayloadRequest tokenPayloadRequest) {
         TokenPayloadResponse response = authService.getTokenPayload(tokenPayloadRequest);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/lastLogin")
+    public ResponseEntity<Void> updateLastLogin(@RequestParam("userId") Long userId) {
+        log.info("Controller: updateLastLogin");
+        authService.updateLastLogin(userId);
+        return ResponseEntity.noContent().build();
     }
 
 }

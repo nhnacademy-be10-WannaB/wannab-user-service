@@ -11,12 +11,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import shop.wannab.userservice.auth.controller.response.ReissueResponse;
-import shop.wannab.userservice.auth.controller.response.UserResponse;
-import shop.wannab.userservice.point.domain.dto.PointUpdateDTO;
+import shop.wannab.userservice.auth.dto.response.ReissueResponse;
+import shop.wannab.userservice.auth.dto.response.UserResponse;
+import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
 import shop.wannab.userservice.point.exception.FeignClientException;
 import shop.wannab.userservice.user.client.CartClient;
-import shop.wannab.userservice.user.domain.dto.CartCreateRequest;
+import shop.wannab.userservice.user.domain.dto.request.CartCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
@@ -61,16 +61,17 @@ public class UserServiceImpl implements UserService {
                 .email(userCreateDTO.email())
                 .phone(userCreateDTO.phone())
                 .birth(userCreateDTO.birth())
-                .userGrade(userGradeRepository.findByGradeName("Standard"))
+                .userGrade(getStandardUserGrade())
                 .build();
 
         userRepository.save(user);
         entityManager.flush();
         entityManager.refresh(user);
 
-        long userId = user.getUserId();
+        Long userIdToSend = user.getUserId();
         try {
-            rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", userId);
+            rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", String.valueOf(userIdToSend));
+            log.info("rabbitMq Producer");
             cartClient.createCart(new CartCreateRequest(user.getUserId()));
         } catch (Exception e) {
             throw new FeignClientException(e.getMessage());
@@ -208,7 +209,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserGrade getStandardUserGrade() {
-        return userGradeRepository.findByGradeName("Standard");
+        return userGradeRepository.findByGradeName("Standard")
+                .orElseThrow(() -> new IllegalStateException("기본 등급(Standard)을 찾을 수 없습니다."));
     }
+
 
 }
