@@ -10,15 +10,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.point.domain.dto.request.PointHistoryCreateDTO;
-import shop.wannab.userservice.point.domain.dto.response.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.dto.request.PointHistoryRollbackPointDTO;
 import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
+import shop.wannab.userservice.point.domain.dto.response.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.entity.PointHistory;
 import shop.wannab.userservice.point.domain.entity.PointPolicy;
 import shop.wannab.userservice.point.repository.PointHistoryRepository;
 import shop.wannab.userservice.point.repository.PointPolicyRepository;
 import shop.wannab.userservice.user.domain.entity.User;
-import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.service.UserService;
 
 @Slf4j
@@ -36,9 +35,6 @@ public class PointHistoryServiceImpl implements PointHistoryService {
     @Override
     public PointHistory createPointHistory(PointHistoryCreateDTO pointHistoryCreateDTO) {
         log.info("Service: createPointHistory");
-        if (!userService.existsUser(pointHistoryCreateDTO.userId())) {
-            throw new UserNotFoundException();
-        }
         if (pointHistoryCreateDTO.usedPoints() > 0) {
             User user = userService.readUser(pointHistoryCreateDTO.userId());
             int totalPoints = user.getPoints() - pointHistoryCreateDTO.usedPoints();
