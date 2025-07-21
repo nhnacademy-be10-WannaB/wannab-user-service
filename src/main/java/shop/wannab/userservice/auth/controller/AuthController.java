@@ -71,10 +71,9 @@ public class AuthController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<UserResponse> login(@RequestParam String loginId) {
+    public UserResponse login(@RequestParam String loginId) {
         log.info("Controller: login");
-        UserResponse userResponse = userService.readUserResponse(loginId);
-        return ResponseEntity.ok(userResponse);
+        return userService.readUserResponse(loginId);
     }
 
     @PostMapping("/unlock/request")
