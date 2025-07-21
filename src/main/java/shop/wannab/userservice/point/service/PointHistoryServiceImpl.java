@@ -15,6 +15,7 @@ import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
 import shop.wannab.userservice.point.domain.dto.response.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.entity.PointHistory;
 import shop.wannab.userservice.point.domain.entity.PointPolicy;
+import shop.wannab.userservice.point.exception.PointNotEnoughException;
 import shop.wannab.userservice.point.repository.PointHistoryRepository;
 import shop.wannab.userservice.point.repository.PointPolicyRepository;
 import shop.wannab.userservice.user.domain.entity.User;
@@ -50,7 +51,7 @@ public class PointHistoryServiceImpl implements PointHistoryService {
             userService.updatePoint(pointHistory.getUser().getUserId(), new PointUpdateDTO(totalPoints));
         }
         User user = userService.readUser(pointHistoryCreateDTO.userId());
-        double rewardRates = user.getUserGrade().getReward_rate();
+        double rewardRates = user.getUserGrade().getRewardRate();
         int changePoints = (int) (pointHistoryCreateDTO.orderTotalPrice() * rewardRates);
         int totalPoints = user.getPoints() + changePoints;
         PointPolicy policy = pointPolicyRepository.findByPolicyName("기본적립률").orElse(null);
@@ -205,7 +206,7 @@ public class PointHistoryServiceImpl implements PointHistoryService {
 
     public void pointExists(int totalPoints) {
         if (totalPoints < 0) {
-            throw new RuntimeException("Total points cannot be negative");
+            throw new PointNotEnoughException("포인트는 음수가 될 수 없습니다.");
         }
 
     }

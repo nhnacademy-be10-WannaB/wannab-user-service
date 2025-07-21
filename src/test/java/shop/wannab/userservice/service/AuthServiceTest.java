@@ -192,8 +192,8 @@ class AuthServiceTest {
 
         // then
         assertThat(response.claims()).isEqualTo(mockClaims);
-        assertThat(response.claims().get("userId")).isEqualTo(1L);
-        assertThat(response.claims().get("role")).isEqualTo("USER");
+        assertThat(response.claims()).containsEntry("userId", 1L);
+        assertThat(response.claims()).containsEntry("role", "USER");
     }
 
     @Test

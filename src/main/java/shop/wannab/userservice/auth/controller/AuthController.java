@@ -71,10 +71,10 @@ public class AuthController {
     }
 
     @GetMapping("/users")
-    public UserResponse login(@RequestParam String loginId) {
+    public ResponseEntity<UserResponse> login(@RequestParam String loginId) {
         log.info("Controller: login");
         UserResponse userResponse = userService.readUserResponse(loginId);
-        return userResponse;
+        return ResponseEntity.ok(userResponse);
     }
 
     @PostMapping("/unlock/request")
