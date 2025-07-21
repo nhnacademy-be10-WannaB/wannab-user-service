@@ -12,5 +12,6 @@ public record PointHistoryRollbackPointDTO(
 ) {
     @Builder
     public PointHistoryRollbackPointDTO {
+        // Lombok의 @Builder를 통해 명시적으로 객체를 만들기 위해
     }
 }

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import shop.wannab.userservice.user.domain.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long>, UserQueryDslRepository {
-    Boolean existsByUserLoginId(String userLoginId);
+    boolean existsByUserLoginId(String userLoginId);
 
     Optional<User> findByUserLoginId(String userLoginId);
 

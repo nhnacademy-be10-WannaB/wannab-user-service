@@ -88,7 +88,7 @@ class PointHistoryServiceTest {
         // then
         assertThat(result.getUser()).isEqualTo(user);
         assertThat(result.getPointHistoryReason()).isEqualTo("도서구매");
-        assertThat(result.getPointHistoryChange()).isGreaterThan(0);
+        assertThat(result.getPointHistoryChange()).isPositive();
     }
 
     @DisplayName("포인트 사용 내역 생성 - 잔여 포인트 부족으로 실패")
@@ -145,14 +145,12 @@ class PointHistoryServiceTest {
     @Test
     void createPointHistory_withUsedPoints_andPolicy_success() {
         // given
-        long userId = 1L;
-        long orderId = 123L;
         int usedPoints = 200;
         int orderTotalPrice = 10000;
 
         UserGrade grade = new UserGrade(); // reward_rate 0.01 (1%)
-        ReflectionTestUtils.setField(grade, "reward_rate", 0.01);
-        User user = User.standard()
+        ReflectionTestUtils.setField(grade, "rewardRate", 0.01);
+        user = User.standard()
                 .userLoginId("user1")
                 .password("pass")
                 .name("테스트유저")
@@ -171,7 +169,7 @@ class PointHistoryServiceTest {
                 .build();
 
         PointHistoryCreateDTO dto = new PointHistoryCreateDTO(userId, usedPoints, orderTotalPrice, orderId);
-        
+
         given(userService.readUser(userId)).willReturn(user);
         given(pointPolicyRepository.findByPolicyName("기본적립률")).willReturn(Optional.of(policy));
         given(pointHistoryRepository.save(any(PointHistory.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -181,8 +179,8 @@ class PointHistoryServiceTest {
 
         // then
         assertThat(result.getPointHistoryReason()).isEqualTo("도서구매");
-        assertThat(result.getPointHistoryChange()).isGreaterThan(0);
-        assertThat(result.getTotalPoints()).isGreaterThan(0);
+        assertThat(result.getPointHistoryChange()).isPositive();
+        assertThat(result.getTotalPoints()).isPositive();
         verify(userService, times(2)).updatePoint(eq(userId), any(PointUpdateDTO.class));
         verify(pointHistoryRepository, times(2)).save(any(PointHistory.class)); // 사용 + 적립
     }

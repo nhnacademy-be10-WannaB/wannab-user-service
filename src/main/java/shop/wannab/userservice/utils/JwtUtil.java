@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtUtil {
 
-    private static final long EXPIRATION_TIME = 15 * 60 * 1000;
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000;
+    private static final long EXPIRATION_TIME = 15 * 60 * 1000L;
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000L;
     private final Key secretKey;
 
     public JwtUtil(@Qualifier("jwtSigningKey") Key secretKey) {
