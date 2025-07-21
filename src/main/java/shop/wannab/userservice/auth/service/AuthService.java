@@ -3,7 +3,6 @@ package shop.wannab.userservice.auth.service;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserRepository;
+import shop.wannab.userservice.utils.AuthCodeGenerator;
 import shop.wannab.userservice.utils.JwtUtil;
 import shop.wannab.userservice.utils.ResponseCode;
 
@@ -73,7 +73,8 @@ public class AuthService {
     }
 
     public void unlockRequest(String userId) {
-        int code = ThreadLocalRandom.current().nextInt(100000, 1_000000);
+        AuthCodeGenerator authCodeGenerator = new AuthCodeGenerator();
+        int code = authCodeGenerator.generate6DigitCode();
         redisTemplate.opsForValue().set("UNLOCK_CODE:" + userId, code, 3, TimeUnit.MINUTES);
         doorayMessageClient.sendUnlockCode(SendMessageRequest.unlockCodeMessage(userId, code));
     }
