@@ -1,7 +1,5 @@
 package shop.wannab.userservice.auth.service;
 
-import static shop.wannab.userservice.utils.JwtUtil.REFRESH_KEY;
-
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -38,6 +36,7 @@ public class AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final UserRepository userRepository;
     private final DoorayMessageClient doorayMessageClient;
+    private static final String REFRESH_KEY = "refresh_token:";
 
     public TokenResponse login(TokenRequest tokenRequest) {
         log.info("Service: login");
@@ -51,7 +50,7 @@ public class AuthService {
         log.info("Service: paycoLogin");
         if (userRepository.existsByProviderId(paycoLoginRequest.providerId())) {
             User user = userRepository.findByProviderId(paycoLoginRequest.providerId()).get();
-            String token = (String) redisTemplate.opsForHash().get("refresh_token:", "1");
+            String token = (String) redisTemplate.opsForHash().get(REFRESH_KEY, "1");
             log.info("token: {}", token);
             return new Response<>(new PaycoLoginResponse(user.getUserId(), user.getRole().toString()),
                     ResponseCode.PAYCO_LOGIN_SUCESS, "로그인 성공 및 토큰 반환");
@@ -64,7 +63,7 @@ public class AuthService {
 
     public User buildUserByPaycoLoginRequest(PaycoLoginRequest paycoLoginRequest) {
         log.info("Service: buildUserByPaycoLoginRequest");
-        String token = (String) redisTemplate.opsForHash().get("refresh_token:", "1");
+        String token = (String) redisTemplate.opsForHash().get(REFRESH_KEY, "1");
         log.info("token: {}", token);
         return User.social().providerId(paycoLoginRequest.providerId())
                 .email(paycoLoginRequest.email())

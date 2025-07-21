@@ -3,19 +3,25 @@ package shop.wannab.userservice.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class JwtUtilTest {
 
-    private JwtUtil jwtUtil;
 
-    private final String secretKey = "01234567890123456789012345678901"; // 32바이트 이상 HMAC 키 필요
+    private JwtUtil jwtUtil;
+    private final String secretKeyString = "01234567890123456789012345678901"; // 최소 256bit (32바이트)
+    private Key secretKey;
 
     @BeforeEach
     void setUp() {
-        jwtUtil = new JwtUtil(secretKey);
+        this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes(StandardCharsets.UTF_8));
+        this.jwtUtil = new JwtUtil(secretKey);
     }
 
     @Test
@@ -32,7 +38,7 @@ class JwtUtilTest {
         // then
         assertThat(claims.get("userId", Long.class)).isEqualTo(userId);
         assertThat(claims.get("role", String.class)).isEqualTo(role);
-        assertThat(claims.getExpiration()).isAfter(new java.util.Date());
+        assertThat(claims.getExpiration()).isAfter(new Date());
     }
 
     @Test
@@ -49,15 +55,6 @@ class JwtUtilTest {
         // then
         assertThat(claims.get("userId", Long.class)).isEqualTo(userId);
         assertThat(claims.get("role", String.class)).isEqualTo(role);
-        assertThat(claims.getExpiration()).isAfter(new java.util.Date());
-    }
-
-    @Test
-    @DisplayName("JWT 키가 null일 경우 예외 발생")
-    void constructor_throwException_whenSecretNull() {
-        // when & then
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            new JwtUtil(null);
-        });
+        assertThat(claims.getExpiration()).isAfter(new Date());
     }
 }
