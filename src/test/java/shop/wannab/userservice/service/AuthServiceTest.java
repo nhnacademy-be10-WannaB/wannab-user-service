@@ -1,6 +1,7 @@
 package shop.wannab.userservice.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -10,6 +11,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.impl.DefaultClaims;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,16 +27,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.test.util.ReflectionTestUtils;
 import shop.wannab.userservice.auth.DoorayMessageClient;
+import shop.wannab.userservice.auth.dto.request.PaycoLoginRequest;
 import shop.wannab.userservice.auth.dto.request.SendMessageRequest;
+import shop.wannab.userservice.auth.dto.request.TokenPayloadRequest;
 import shop.wannab.userservice.auth.dto.request.TokenRequest;
 import shop.wannab.userservice.auth.dto.request.UnlockRequest;
+import shop.wannab.userservice.auth.dto.response.PaycoLoginResponse;
+import shop.wannab.userservice.auth.dto.response.TokenPayloadResponse;
 import shop.wannab.userservice.auth.dto.response.TokenResponse;
 import shop.wannab.userservice.auth.service.AuthService;
+import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
+import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
+import shop.wannab.userservice.utils.ResponseCode;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -162,5 +174,122 @@ class AuthServiceTest {
             assertThat(result).isFalse();
         }
     }
+
+    @Test
+    @DisplayName("JWT 토큰 파싱 성공 시 Claims 반환")
+    void testGetTokenPayload_success() {
+        // given
+        String token = "mock.jwt.token";
+        Claims mockClaims = new DefaultClaims();
+        mockClaims.put("userId", 1L);
+        mockClaims.put("role", "USER");
+
+        TokenPayloadRequest request = new TokenPayloadRequest(token);
+        when(jwtUtil.parseToken(token)).thenReturn(mockClaims);
+
+        // when
+        TokenPayloadResponse response = authService.getTokenPayload(request);
+
+        // then
+        assertThat(response.claims()).isEqualTo(mockClaims);
+        assertThat(response.claims().get("userId")).isEqualTo(1L);
+        assertThat(response.claims().get("role")).isEqualTo("USER");
+    }
+
+    @Test
+    @DisplayName("마지막 로그인 일자 업데이트 성공")
+    void testUpdateLastLogin_success() {
+        // given
+        Long userId = 1L;
+        User user = new User();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        authService.updateLastLogin(userId);
+
+        // then
+        assertThat(user.getLastLoginAt()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
+    @DisplayName("유저가 존재하지 않을 경우 예외 발생")
+    void testUpdateLastLogin_userNotFound() {
+        // given
+        Long userId = 2L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> authService.updateLastLogin(userId))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+
+    private PaycoLoginRequest createMockRequest() {
+        return new PaycoLoginRequest(
+                "payco-123",
+                "PAYCO",
+                "user@example.com",
+                LocalDate.of(1995, 5, 15),
+                "010-1234-5678",
+                "홍길동"
+        );
+    }
+
+    @Test
+    @DisplayName("기존 회원 - PAYCO 로그인 성공")
+    void testPaycoLogin_existingUser_success() {
+        // given
+        PaycoLoginRequest request = createMockRequest();
+
+        User mockUser = User.social()
+                .providerId(request.providerId())
+                .email(request.email())
+                .birth(request.birthday())
+                .phone(request.phone())
+                .build();
+        ReflectionTestUtils.setField(mockUser, "userId", 1L);
+
+        when(userRepository.existsByProviderId(request.providerId())).thenReturn(true);
+        when(userRepository.findByProviderId(request.providerId())).thenReturn(Optional.of(mockUser));
+        when(redisTemplate.opsForHash()).thenReturn(hashOperations);
+        when(hashOperations.get("refresh_token:", "1")).thenReturn("mock-refresh-token");
+
+        // when
+        Response<PaycoLoginResponse> response = authService.paycoLogin(request);
+
+        // then
+        assertThat(response.getResponseCode()).isEqualTo(ResponseCode.PAYCO_LOGIN_SUCESS);
+        assertThat(response.getData().id()).isEqualTo(1L);
+        assertThat(response.getMessage()).contains("로그인 성공");
+    }
+
+    @Test
+    @DisplayName("신규 회원 - PAYCO 회원가입 성공")
+    void testPaycoLogin_newUser_signup() {
+        // given
+        PaycoLoginRequest request = createMockRequest();
+
+        User newUser = User.social()
+                .providerId(request.providerId())
+                .email(request.email())
+                .birth(request.birthday())
+                .phone(request.phone())
+                .build();
+        ReflectionTestUtils.setField(newUser, "userId", 2L);
+
+        when(userRepository.existsByProviderId(request.providerId())).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(newUser);
+        when(redisTemplate.opsForHash()).thenReturn(hashOperations);
+        when(hashOperations.get("refresh_token:", "1")).thenReturn("mock-token");
+
+        // when
+        Response<PaycoLoginResponse> response = authService.paycoLogin(request);
+
+        // then
+        assertThat(response.getResponseCode()).isEqualTo(ResponseCode.PAYCO_SIGNUP_SUCESS);
+        assertThat(response.getData().id()).isEqualTo(2L);
+        assertThat(response.getMessage()).contains("회원가입 성공");
+    }
+
 
 }
