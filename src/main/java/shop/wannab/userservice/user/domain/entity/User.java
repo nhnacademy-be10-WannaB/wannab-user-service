@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import shop.wannab.userservice.user.domain.dto.request.UserCreateDTO;
 
 @Entity
 @Getter
@@ -98,21 +99,20 @@ public class User {
 
 
     // 회원가입
-    private User(String password, String userLoginId, String name, String email, String phone, LocalDate birth,
-                 String providerName, String providerId, UserGrade userGrade) {
+    private User(UserCreateDTO userCreateDTO) {
         // 공용
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.birth = birth;
+        this.name = userCreateDTO.getName();
+        this.email = userCreateDTO.getEmail();
+        this.phone = userCreateDTO.getPhone();
+        this.birth = userCreateDTO.getBirth();
 
         // 일반 전용
-        this.password = password;
-        this.userLoginId = userLoginId;
+        this.password = userCreateDTO.getPassword();
+        this.userLoginId = userCreateDTO.getUserLoginId();
 
         // 소셜 전용
-        this.providerName = providerName;
-        this.providerId = providerId;
+        this.providerName = userCreateDTO.getProviderName();
+        this.providerId = userCreateDTO.getProviderId();
 
         // 공용 설정
         this.nickname = "unknown";
@@ -121,20 +121,38 @@ public class User {
         this.points = 0;
         this.role = Role.USER;
         this.state = State.ACTIVATE;
-        this.userGrade = userGrade;
+        this.userGrade = userCreateDTO.getUserGrade();
     }
 
     // 일반 회원가입
     @Builder(builderMethodName = "standard")
     public User(String password, String userLoginId, String name, String email, String phone,
                 LocalDate birth, UserGrade userGrade) {
-        this(password, userLoginId, name, email, phone, birth, null, null, userGrade);
+        this(UserCreateDTO.builder()
+                .password(password)
+                .userLoginId(userLoginId)
+                .name(name)
+                .email(email)
+                .phone(phone)
+                .birth(birth)
+                .userGrade(userGrade)
+                .build());
     }
 
     // 소셜 회원가입
     @Builder(builderMethodName = "social")
     public User(String providerId, String providerName, String name, String email, LocalDate birth, String phone,
                 UserGrade userGrade) {
-        this(null, null, name, email, phone, birth, providerName, providerId, userGrade);
+        this(UserCreateDTO.builder()
+                .userLoginId(null)
+                .password(null)
+                .providerId(providerId)
+                .providerName(providerName)
+                .name(name)
+                .email(email)
+                .birth(birth)
+                .phone(phone)
+                .userGrade(userGrade)
+                .build());
     }
 }
