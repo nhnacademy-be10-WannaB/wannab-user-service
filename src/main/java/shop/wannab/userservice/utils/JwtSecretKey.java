@@ -3,21 +3,25 @@ package shop.wannab.userservice.utils;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@Getter
+@Setter
 @Configuration
+@ConfigurationProperties("jwt")
 public class JwtSecretKey {
-    @Value("${jwt.secret-key}")
-    private String secret;
+    private String secretKey;
 
     @Bean
     public Key jwtSigningKey() {
-        if (secret == null) {
+        if (secretKey == null) {
             throw new IllegalArgumentException("JWT secret is null!");
         }
-        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
 }
