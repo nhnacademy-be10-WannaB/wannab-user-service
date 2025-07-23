@@ -1,10 +1,17 @@
 package shop.wannab.userservice.controller;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -17,6 +24,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -24,20 +32,28 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import shop.wannab.userservice.auth.controller.AuthController;
 import shop.wannab.userservice.auth.dto.request.PaycoLoginRequest;
+import shop.wannab.userservice.auth.dto.request.ReissueRequest;
 import shop.wannab.userservice.auth.dto.request.TokenPayloadRequest;
+import shop.wannab.userservice.auth.dto.request.TokenRequest;
 import shop.wannab.userservice.auth.dto.request.UnlockRequest;
 import shop.wannab.userservice.auth.dto.response.PaycoLoginResponse;
+import shop.wannab.userservice.auth.dto.response.ReissueResponse;
+import shop.wannab.userservice.auth.dto.response.TokenResponse;
+import shop.wannab.userservice.auth.dto.response.UserResponse;
 import shop.wannab.userservice.auth.service.AuthService;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.point.service.PointHistoryService;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.entity.Role;
+import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.domain.entity.UserGrade;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.ResponseCode;
 
 @ActiveProfiles("ci")
+@AutoConfigureRestDocs
+@DisplayName("Auth Controller 단위 테스트")
 @WebMvcTest(AuthController.class)
 class AuthControllerTest {
 
@@ -58,6 +74,101 @@ class AuthControllerTest {
 
     private final UserGrade mockGrade = mock(UserGrade.class);
 
+    @DisplayName("토큰 재발급 API 테스트")
+    @Test
+    void refreshAccessToken_success() throws Exception {
+        // given
+        String refreshToken = "mock-refresh-token";
+        ReissueRequest request = new ReissueRequest(refreshToken);
+
+        ReissueResponse mockResponse = new ReissueResponse("new-access-token");
+
+        given(userService.reissueToken(refreshToken)).willReturn(mockResponse);
+
+        // when / then
+        mockMvc.perform(post("/api/auth/reissue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("new-access-token"))
+                .andDo(document("auth/reissue",
+                        requestFields(
+                                fieldWithPath("refreshToken").description("리프레시 토큰")
+                        ),
+                        responseFields(
+                                fieldWithPath("accessToken").description("재발급된 액세스 토큰")
+                        )
+                ));
+    }
+
+    @DisplayName("로그인 API 테스트")
+    @Test
+    void login_success() throws Exception {
+        // given
+        TokenRequest request = new TokenRequest(1l, "password123");
+
+        TokenResponse response = new TokenResponse(
+                "mock-access-token",
+                "mock-refresh-token"
+        );
+
+        given(authService.login(any(TokenRequest.class))).willReturn(response);
+
+        // when / then
+        mockMvc.perform(post("/api/auth/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("mock-access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("mock-refresh-token"))
+                .andDo(document("auth/login",
+                        requestFields(
+                                fieldWithPath("userId").description("회원 고유 ID"),
+                                fieldWithPath("role").description("사용자 역할 또는 비밀번호")
+                        ),
+                        responseFields(
+                                fieldWithPath("accessToken").description("JWT 액세스 토큰"),
+                                fieldWithPath("refreshToken").description("JWT 리프레시 토큰")
+                        )
+                ));
+
+    }
+
+    @DisplayName("로그인 ID로 사용자 조회 API 테스트")
+    @Test
+    void getUserByLoginId_success() throws Exception {
+        // given
+        String loginId = "testuser";
+        UserResponse mockResponse = new UserResponse(
+                1L,
+                "testuser",
+                State.ACTIVATE
+        );
+
+        given(userService.readUserResponse(loginId)).willReturn(mockResponse);
+
+        // when / then
+        mockMvc.perform(get("/api/auth/users")
+                        .param("loginId", loginId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(1L))
+                .andExpect(jsonPath("$.loginId").value("testuser"))
+                .andExpect(jsonPath("$.state").value(State.ACTIVATE.name()))
+
+                .andDo(document("auth/find-user-by-login-id",
+                        queryParameters(
+                                parameterWithName("loginId").description("로그인 아이디")
+                        ),
+                        responseFields(
+                                fieldWithPath("userId").description("회원 고유 ID"),
+                                fieldWithPath("loginId").description("로그인 아이디"),
+                                fieldWithPath("state").description("상태")
+                        )
+                ));
+
+    }
+
+
     @Test
     @DisplayName("PAYCO 로그인 성공")
     void paycoLogin_success() throws Exception {
@@ -77,7 +188,24 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(1L))
-                .andExpect(jsonPath("$.message").value("성공"));
+                .andExpect(jsonPath("$.message").value("성공"))
+                .andDo(document("auth/payco-login",
+                        requestFields(
+                                fieldWithPath("providerId").description("PAYCO 사용자 식별 ID"),
+                                fieldWithPath("providerName").description("소셜 로그인 제공자 (예: PAYCO)"),
+                                fieldWithPath("email").description("사용자 이메일"),
+                                fieldWithPath("birthday").description("생년월일 (yyyy-MM-dd)"),
+                                fieldWithPath("phone").description("전화번호"),
+                                fieldWithPath("name").description("이름")
+                        ),
+                        responseFields(
+                                fieldWithPath("data.id").description("회원 고유 ID"),
+                                fieldWithPath("data.role").description("회원 역할"),
+                                fieldWithPath("responseCode").description("응답 코드"),
+                                fieldWithPath("message").description("응답 메시지")
+                        )
+                ));
+
     }
 
     @Test
@@ -94,7 +222,15 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/info")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("auth/token-info",
+                        requestFields(
+                                fieldWithPath("token").description("access_token")
+                        ),
+                        responseFields(
+                                fieldWithPath("claims").optional().description("Map<String, Object>")
+                        )
+                ));
     }
 
     @Test
@@ -122,7 +258,22 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("auth/signup",
+                        requestFields(
+                                fieldWithPath("userLoginId").description("사용자 로그인 ID"),
+                                fieldWithPath("password").description("비밀번호"),
+                                fieldWithPath("phone").description("전화번호"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("birth").description("생년월일 (yyyy-MM-dd)")
+                        ),
+                        responseFields(
+                                fieldWithPath("data").description("응답 데이터 (null)").optional(),
+                                fieldWithPath("responseCode").description("응답 코드"),
+                                fieldWithPath("message").description("응답 메시지").optional()
+                        )
+                ));
 
         verify(pointHistoryService).createSignupPoints(newUser);
     }
@@ -136,8 +287,13 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(put("/api/auth/lastLogin")
-                        .param("userId", String.valueOf(userId)))
-                .andExpect(status().isNoContent());
+                        .queryParam("userId", String.valueOf(userId)))
+                .andExpect(status().isNoContent())
+                .andDo(document("auth/update-last-login",
+                        queryParameters(
+                                parameterWithName("userId").description("로그인한 사용자 ID")
+                        )
+                ));
 
         verify(authService).updateLastLogin(userId);
     }
@@ -177,7 +333,14 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(content().string("true"))
+                .andDo(document("auth/unlock-verify",
+                        requestFields(
+                                fieldWithPath("userId").description("잠금 해제를 요청한 사용자 ID"),
+                                fieldWithPath("authenticationCode").description("인증 코드")
+                        )
+
+                ));
     }
 
 }
