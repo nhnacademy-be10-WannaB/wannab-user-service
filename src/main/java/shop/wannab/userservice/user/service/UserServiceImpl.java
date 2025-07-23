@@ -198,6 +198,8 @@ public class UserServiceImpl implements UserService {
                 orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
         return UserResponse.builder()
                 .loginId(user.getUserLoginId())
+                .role(user.getRole())
+                .password(user.getPassword())
                 .userId(user.getUserId())
                 .state(user.getState())
                 .build();
