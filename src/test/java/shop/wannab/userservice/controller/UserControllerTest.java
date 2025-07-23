@@ -4,6 +4,17 @@ import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -13,21 +24,22 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shop.wannab.userservice.user.controller.UserController;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.HeaderUtil;
 
-@DisplayName("UserController 테스트")
-@WebMvcTest(UserController.class)
 @ActiveProfiles("ci")
+@AutoConfigureRestDocs
+@DisplayName("User Controller 단위 테스트")
+@WebMvcTest(UserController.class)
 class UserControllerTest {
 
     @Autowired
@@ -59,11 +71,28 @@ class UserControllerTest {
         given(userService.readUserPageResponse(userId)).willReturn(mockResponse);
 
         // when / then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
+        mockMvc.perform(get("/api/users")
                         .header(HeaderUtil.HEADER_ID_NAME, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.email").value("test@test.com"));
+                .andExpect(jsonPath("$.email").value("test@test.com"))
+                .andDo(document("users/read-user",
+                        requestHeaders(
+                                headerWithName("X-USER-ID").description("회원 고유 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("username").description("사용자 아이디"),
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("phone").description("전화번호"),
+                                fieldWithPath("birth").description("생년월일"),
+                                fieldWithPath("nickname").description("닉네임"),
+                                fieldWithPath("password").description("비밀번호"),
+                                fieldWithPath("points").description("포인트"),
+                                fieldWithPath("grade").description("회원 등급")
+                        )
+                ));
+
     }
 
     @Test
@@ -90,13 +119,36 @@ class UserControllerTest {
                 .willReturn(mockResponse);
 
         // when / then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+        mockMvc.perform(post("/api/users")
                         .header(HeaderUtil.HEADER_ID_NAME, userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("새이름"))
-                .andExpect(jsonPath("$.nickname").value("newnick"));
+                .andExpect(jsonPath("$.nickname").value("newnick"))
+                .andDo(document("users/update-user",
+                        requestHeaders(
+                                headerWithName("X-USER-ID").description("회원 고유 ID")
+                        ),
+                        requestFields(
+                                fieldWithPath("password").description("새 비밀번호"),
+                                fieldWithPath("name").description("새 이름"),
+                                fieldWithPath("email").description("새 이메일"),
+                                fieldWithPath("nickname").description("새 닉네임"),
+                                fieldWithPath("phone").description("새 전화번호")
+                        ),
+                        responseFields(
+                                fieldWithPath("username").description("회원 아이디"),
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("phone").description("전화번호"),
+                                fieldWithPath("birth").description("생년월일"),
+                                fieldWithPath("nickname").description("닉네임"),
+                                fieldWithPath("password").description("비밀번호"),
+                                fieldWithPath("points").description("회원 포인트"),
+                                fieldWithPath("grade").description("회원 등급")
+                        )
+                ));
     }
 
     @Test
@@ -107,9 +159,14 @@ class UserControllerTest {
         willDoNothing().given(userService).deleteUser(userId);
 
         // when / then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/users")
+        mockMvc.perform(delete("/api/users")
                         .header(HeaderUtil.HEADER_ID_NAME, userId))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andDo(document("users/delete-user",
+                        requestHeaders(
+                                headerWithName(HeaderUtil.HEADER_ID_NAME).description("회원 고유 ID")
+                        )
+                ));
     }
 
     @Test
@@ -120,9 +177,15 @@ class UserControllerTest {
         willDoNothing().given(userService).logout(userId);
 
         // when / then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/logout")
+        mockMvc.perform(get("/api/users/logout")
                         .header(HeaderUtil.HEADER_ID_NAME, userId))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andDo(document("users/logout",
+                        requestHeaders(
+                                headerWithName(HeaderUtil.HEADER_ID_NAME).description("회원 고유 ID")
+                        )
+                ));
+
     }
 
     @Test
@@ -131,13 +194,21 @@ class UserControllerTest {
         // given
         int month = 7;
         List<Long> mockIds = List.of(1L, 2L, 3L);
-
         given(userService.birthUserList(month)).willReturn(mockIds);
 
         // when / then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/birthdays")
+        mockMvc.perform(get("/api/users/birthdays")
                         .param("month", String.valueOf(month)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3));
+                .andExpect(jsonPath("$.length()").value(3))
+                .andDo(document("users/birthday-list",
+                        queryParameters(
+                                parameterWithName("month").description("조회할 생일 월 (1~12)")
+                        ),
+                        responseFields(
+                                fieldWithPath("[]").description("해당 월에 생일이 있는 사용자 ID 목록")
+                        )
+                ));
     }
+
 }

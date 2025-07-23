@@ -50,13 +50,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(UserCreateRequest userCreateDTO) {
         log.info("Service: createUser");
-        if (userRepository.existsByUserLoginId(userCreateDTO.username())) {
+        if (userRepository.existsByUserLoginId(userCreateDTO.userLoginId())) {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
         }
 
         User user = User.standard()
                 .password(userCreateDTO.password())
-                .userLoginId(userCreateDTO.username())
+                .userLoginId(userCreateDTO.userLoginId())
                 .name(userCreateDTO.name())
                 .email(userCreateDTO.email())
                 .phone(userCreateDTO.phone())
@@ -194,10 +194,8 @@ public class UserServiceImpl implements UserService {
                 orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
         return UserResponse.builder()
                 .loginId(user.getUserLoginId())
-                .password(user.getPassword())
                 .userId(user.getUserId())
                 .state(user.getState())
-                .role(user.getRole())
                 .build();
     }
 
