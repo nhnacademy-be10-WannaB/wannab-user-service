@@ -7,6 +7,9 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ import shop.wannab.userservice.user.client.CartClient;
 import shop.wannab.userservice.user.domain.dto.request.CartCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
+import shop.wannab.userservice.user.domain.dto.response.AdminPageUserResponse;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
@@ -209,6 +213,13 @@ public class UserServiceImpl implements UserService {
     public UserGrade getStandardUserGrade() {
         return userGradeRepository.findByGradeName("Standard")
                 .orElseThrow(() -> new IllegalStateException("기본 등급(Standard)을 찾을 수 없습니다."));
+    }
+
+    @Override
+    public Page<AdminPageUserResponse> readUserList(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(AdminPageUserResponse::new);
     }
 
 

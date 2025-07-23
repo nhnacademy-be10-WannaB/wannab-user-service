@@ -1,11 +1,13 @@
 package shop.wannab.userservice.user.service;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 import shop.wannab.userservice.auth.dto.response.ReissueResponse;
 import shop.wannab.userservice.auth.dto.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
+import shop.wannab.userservice.user.domain.dto.response.AdminPageUserResponse;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.domain.entity.UserGrade;
@@ -38,4 +40,6 @@ public interface UserService {
     boolean duplicated(String username);
 
     UserGrade getStandardUserGrade();
+
+    Page<AdminPageUserResponse> readUserList(int page, int size);
 }
