@@ -19,11 +19,13 @@ import shop.wannab.userservice.auth.dto.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
 import shop.wannab.userservice.point.exception.FeignClientException;
 import shop.wannab.userservice.user.client.CartClient;
+import shop.wannab.userservice.user.domain.dto.request.AdminUserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.request.CartCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.AdminPageUserResponse;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
+import shop.wannab.userservice.user.domain.entity.Role;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.domain.entity.UserGrade;
@@ -222,6 +224,26 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> users = userRepository.findAll(pageable);
         return users.map(AdminPageUserResponse::new);
+    }
+
+    @Override
+    public AdminPageUserResponse readAdminPageUser(String loginId) {
+        log.info("Service: readAdminPageUser");
+        User user = userRepository.findByUserLoginId(loginId).orElseThrow(UserNotFoundException::new);
+        return new AdminPageUserResponse(user);
+    }
+
+    @Override
+    public void updateAdminUser(String loginId, AdminUserUpdateRequest adminUserUpdateRequest) {
+        User user = userRepository.findByUserLoginId(loginId).orElseThrow(UserNotFoundException::new);
+        user.setNickname(adminUserUpdateRequest.getNickname());
+        user.setRole(Role.valueOf(adminUserUpdateRequest.getRole()));
+    }
+
+    @Override
+    public void deleteAdminUser(String loginId) {
+        User user = userRepository.findByUserLoginId(loginId).orElseThrow(UserNotFoundException::new);
+        user.setState(State.DELETED);
     }
 
 

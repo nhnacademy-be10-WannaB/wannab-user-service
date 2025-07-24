@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import shop.wannab.userservice.point.domain.dto.response.PageResponse;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
-import shop.wannab.userservice.user.domain.dto.response.AdminPageUserResponse;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.service.UserService;
@@ -65,13 +62,5 @@ public class UserController {
         return userService.birthUserList(month);
     }
 
-    @GetMapping("/admin")
-    public ResponseEntity<PageResponse<AdminPageUserResponse>> useList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Controller: useList");
-        Page<AdminPageUserResponse> adminPageUserResponses = userService.readUserList(page, size);
-        return ResponseEntity.ok(PageResponse.from(adminPageUserResponses));
-    }
 
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import shop.wannab.userservice.auth.dto.response.ReissueResponse;
 import shop.wannab.userservice.auth.dto.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
+import shop.wannab.userservice.user.domain.dto.request.AdminUserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.AdminPageUserResponse;
@@ -42,4 +43,10 @@ public interface UserService {
     UserGrade getStandardUserGrade();
 
     Page<AdminPageUserResponse> readUserList(int page, int size);
+
+    AdminPageUserResponse readAdminPageUser(String loginId);
+
+    void updateAdminUser(String loginId, AdminUserUpdateRequest adminUserUpdateRequest);
+
+    void deleteAdminUser(String loginId);
 }
