@@ -146,6 +146,7 @@ class AuthServiceTest {
             user.setState(State.INACTIVATE);
 
             when(valueOperations.get(key)).thenReturn(String.valueOf(code));
+            when(userRepository.existsByUserLoginId(userId)).thenReturn(true); // ← 추가
             when(userRepository.findByUserLoginId(userId)).thenReturn(Optional.of(user));
 
             // when
@@ -156,6 +157,7 @@ class AuthServiceTest {
             assertThat(user.getState()).isEqualTo(State.ACTIVATE);
             verify(redisTemplate).delete(key);
         }
+
 
         @Test
         @DisplayName("인증코드가 일치하지 않으면 false 반환")

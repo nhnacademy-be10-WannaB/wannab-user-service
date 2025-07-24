@@ -141,19 +141,21 @@ class AuthControllerTest {
         String loginId = "testuser";
         UserResponse mockResponse = new UserResponse(
                 1L,
+                "encodedPassword",
                 "testuser",
-                State.ACTIVATE
+                State.ACTIVATE,
+                Role.USER
         );
 
         given(userService.readUserResponse(loginId)).willReturn(mockResponse);
 
-        // when / then
         mockMvc.perform(get("/api/auth/users")
                         .param("loginId", loginId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(1L))
                 .andExpect(jsonPath("$.loginId").value("testuser"))
                 .andExpect(jsonPath("$.state").value(State.ACTIVATE.name()))
+                .andExpect(jsonPath("$.role").value("USER"))
 
                 .andDo(document("auth/find-user-by-login-id",
                         queryParameters(
@@ -161,11 +163,12 @@ class AuthControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("userId").description("회원 고유 ID"),
+                                fieldWithPath("password").description("비밀번호").optional(),
                                 fieldWithPath("loginId").description("로그인 아이디"),
-                                fieldWithPath("state").description("상태")
+                                fieldWithPath("state").description("상태"),
+                                fieldWithPath("role").description("회원 권한").optional()
                         )
                 ));
-
     }
 
 
