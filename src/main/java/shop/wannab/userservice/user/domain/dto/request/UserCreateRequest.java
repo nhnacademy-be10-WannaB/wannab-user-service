@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 
-public record UserCreateRequest(@NotBlank String username,
+public record UserCreateRequest(@NotBlank String userLoginId,
                                 @NotBlank String password,
                                 @NotBlank String name,
                                 @NotBlank @Email String email,

@@ -1,0 +1,312 @@
+= Wannab Book API 문서
+:toc: left
+:toclevels: 2
+:sectnums:
+:sectnumlevels: 3
+
+== 회원
+
+=== 회원 조회
+
+**Request**
+
+include::{snippets}/users/read-user/http-request.adoc[]
+include::{snippets}/users/read-user/request-headers.adoc[]
+
+**Response**
+
+include::{snippets}/users/read-user/http-response.adoc[]
+include::{snippets}/users/read-user/response-fields.adoc[]
+
+=== 회원 수정
+
+**Request**
+
+include::{snippets}/users/update-user/http-request.adoc[]
+include::{snippets}/users/update-user/request-headers.adoc[]
+
+**Response**
+
+include::{snippets}/users/update-user/http-response.adoc[]
+include::{snippets}/users/update-user/response-fields.adoc[]
+
+=== 회원 삭제
+
+**Request**
+
+include::{snippets}/users/delete-user/http-request.adoc[]
+include::{snippets}/users/delete-user/request-headers.adoc[]
+
+**Response**
+
+include::{snippets}/users/delete-user/http-response.adoc[]
+
+=== 포인트 조회
+
+**Request**
+
+include::{snippets}/users/read-points/http-request.adoc[]
+include::{snippets}/users/read-points/request-headers.adoc[]
+
+**Response**
+
+include::{snippets}/users/read-points/http-response.adoc[]
+
+=== 포인트 수정
+
+**Request**
+
+include::{snippets}/users/update-points/http-request.adoc[]
+include::{snippets}/users/update-points/request-headers.adoc[]
+include::{snippets}/users/update-points/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/users/update-points/http-response.adoc[]
+
+=== 포인트 내역 조회
+
+**Request**
+
+include::{snippets}/users/read-point-histories/http-request.adoc[]
+include::{snippets}/users/read-point-histories/request-headers.adoc[]
+include::{snippets}/users/read-point-histories/query-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/users/read-point-histories/http-response.adoc[]
+include::{snippets}/users/read-point-histories/response-fields.adoc[]
+
+=== 로그아웃
+
+**Request**
+
+include::{snippets}/users/logout/request-headers.adoc[]
+include::{snippets}/users/logout/http-request.adoc[]
+
+**Response**
+
+include::{snippets}/users/logout/http-response.adoc[]
+
+=== 특정 월 생일 회원아이디 리스트 조회
+
+**Request**
+
+include::{snippets}/users/birthday-list/http-request.adoc[]
+include::{snippets}/users/birthday-list/query-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/users/birthday-list/http-response.adoc[]
+include::{snippets}/users/birthday-list/response-fields.adoc[]
+
+== 인증
+
+=== 회원가입
+
+**Request**
+
+include::{snippets}/auth/signup/http-request.adoc[]
+include::{snippets}/auth/signup/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/auth/signup/http-response.adoc[]
+include::{snippets}/auth/signup/response-fields.adoc[]
+
+=== 로그인
+
+**Request**
+
+include::{snippets}/auth/login/http-request.adoc[]
+include::{snippets}/auth/login/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/auth/login/http-response.adoc[]
+include::{snippets}/auth/login/response-fields.adoc[]
+
+=== 페이코 로그인
+
+**Request**
+
+include::{snippets}/auth/payco-login/http-request.adoc[]
+include::{snippets}/auth/payco-login/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/auth/payco-login/http-response.adoc[]
+include::{snippets}/auth/payco-login/response-fields.adoc[]
+
+=== 토큰 재발급
+
+**Request**
+
+include::{snippets}/auth/reissue/http-request.adoc[]
+include::{snippets}/auth/reissue/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/auth/reissue/http-response.adoc[]
+include::{snippets}/auth/reissue/response-fields.adoc[]
+
+=== 토큰 페이로드 조회
+
+**Request**
+
+include::{snippets}/auth/token-info/http-request.adoc[]
+include::{snippets}/auth/token-info/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/auth/token-info/http-response.adoc[]
+include::{snippets}/auth/token-info/response-fields.adoc[]
+
+=== 인증코드 검증
+
+**Request**
+
+include::{snippets}/auth/unlock-verify/http-request.adoc[]
+include::{snippets}/auth/unlock-verify/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/auth/unlock-verify/http-response.adoc[]
+
+=== 마지막 접속일 수정
+
+**Request**
+
+include::{snippets}/auth/update-last-login/http-request.adoc[]
+include::{snippets}/auth/update-last-login/query-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/auth/update-last-login/http-response.adoc[]
+
+== 포인트
+
+=== 포인트 정책 조회
+
+**Request**
+
+include::{snippets}/point-policy/read/http-request.adoc[]
+include::{snippets}/point-policy/read/request-headers.adoc[]
+include::{snippets}/point-policy/read/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/point-policy/read/http-response.adoc[]
+include::{snippets}/point-policy/read/response-fields.adoc[]
+
+=== 포인트 정책 수정
+
+**Request**
+
+include::{snippets}/point-policy/update/http-request.adoc[]
+include::{snippets}/point-policy/update/request-headers.adoc[]
+include::{snippets}/point-policy/update/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/point-policy/update/http-response.adoc[]
+include::{snippets}/point-policy/update/response-fields.adoc[]
+
+=== 포인트 내역 생성(리뷰작성)
+
+**Request**
+
+include::{snippets}/point-history/create-review/http-request.adoc[]
+include::{snippets}/point-history/create-review/query-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/point-history/create-review/http-response.adoc[]
+
+=== 포인트 내역 생성(주문취소)
+
+**Request**
+
+include::{snippets}/point-history/cancel-order/http-request.adoc[]
+include::{snippets}/point-history/cancel-order/path-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/point-history/cancel-order/http-response.adoc[]
+
+=== 포인트 내역 생성(환불)
+
+**Request**
+
+include::{snippets}/point-history/refund/http-request.adoc[]
+include::{snippets}/point-history/refund/query-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/point-history/refund/http-response.adoc[]
+
+== 주소
+
+=== 주소 전체 조회
+
+**Request**
+
+include::{snippets}/address/get-all/http-request.adoc[]
+include::{snippets}/address/get-all/request-headers.adoc[]
+
+**Response**
+
+include::{snippets}/address/get-all/http-response.adoc[]
+include::{snippets}/address/get-all/response-fields.adoc[]
+
+=== 주소 단일 조회
+
+**Request**
+
+include::{snippets}/address/get-address/http-request.adoc[]
+include::{snippets}/address/get-address/request-headers.adoc[]
+include::{snippets}/address/get-address/path-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/address/get-address/http-response.adoc[]
+include::{snippets}/address/get-address/response-fields.adoc[]
+
+=== 주소 생성
+
+**Request**
+
+include::{snippets}/address/create-address/http-request.adoc[]
+include::{snippets}/address/create-address/request-headers.adoc[]
+
+**Response**
+
+include::{snippets}/address/create-address/http-response.adoc[]
+include::{snippets}/address/create-address/response-fields.adoc[]
+
+=== 주소 수정
+
+**Request**
+
+include::{snippets}/address/update-address/http-request.adoc[]
+include::{snippets}/address/update-address/request-headers.adoc[]
+include::{snippets}/address/update-address/path-parameters.adoc[]
+include::{snippets}/address/update-address/request-fields.adoc[]
+
+**Response**
+
+include::{snippets}/address/update-address/http-response.adoc[]
+include::{snippets}/address/update-address/response-fields.adoc[]
+
+=== 주소 삭제
+
+**Request**
+
+include::{snippets}/address/delete-address/http-request.adoc[]
+include::{snippets}/address/delete-address/request-headers.adoc[]
+include::{snippets}/address/delete-address/path-parameters.adoc[]
+
+**Response**
+
+include::{snippets}/address/delete-address/http-response.adoc[]
+include::{snippets}/address/delete-address/response-fields.adoc[]

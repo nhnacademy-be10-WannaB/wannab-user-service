@@ -73,8 +73,7 @@ public class AuthController {
     @GetMapping("/users")
     public UserResponse login(@RequestParam String loginId) {
         log.info("Controller: login");
-        UserResponse userResponse = userService.readUserResponse(loginId);
-        return userResponse;
+        return userService.readUserResponse(loginId);
     }
 
     @PostMapping("/unlock/request")

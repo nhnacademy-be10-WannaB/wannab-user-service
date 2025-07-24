@@ -10,15 +10,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.point.domain.dto.request.PointHistoryCreateDTO;
-import shop.wannab.userservice.point.domain.dto.response.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.dto.request.PointHistoryRollbackPointDTO;
 import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
+import shop.wannab.userservice.point.domain.dto.response.PointHistoryResponse;
 import shop.wannab.userservice.point.domain.entity.PointHistory;
 import shop.wannab.userservice.point.domain.entity.PointPolicy;
+import shop.wannab.userservice.point.exception.PointNotEnoughException;
 import shop.wannab.userservice.point.repository.PointHistoryRepository;
 import shop.wannab.userservice.point.repository.PointPolicyRepository;
 import shop.wannab.userservice.user.domain.entity.User;
-import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.service.UserService;
 
 @Slf4j
@@ -36,9 +36,6 @@ public class PointHistoryServiceImpl implements PointHistoryService {
     @Override
     public PointHistory createPointHistory(PointHistoryCreateDTO pointHistoryCreateDTO) {
         log.info("Service: createPointHistory");
-        if (!userService.existsUser(pointHistoryCreateDTO.userId())) {
-            throw new UserNotFoundException();
-        }
         if (pointHistoryCreateDTO.usedPoints() > 0) {
             User user = userService.readUser(pointHistoryCreateDTO.userId());
             int totalPoints = user.getPoints() - pointHistoryCreateDTO.usedPoints();
@@ -54,7 +51,7 @@ public class PointHistoryServiceImpl implements PointHistoryService {
             userService.updatePoint(pointHistory.getUser().getUserId(), new PointUpdateDTO(totalPoints));
         }
         User user = userService.readUser(pointHistoryCreateDTO.userId());
-        double rewardRates = user.getUserGrade().getReward_rate();
+        double rewardRates = user.getUserGrade().getRewardRate();
         int changePoints = (int) (pointHistoryCreateDTO.orderTotalPrice() * rewardRates);
         int totalPoints = user.getPoints() + changePoints;
         PointPolicy policy = pointPolicyRepository.findByPolicyName("기본적립률").orElse(null);
@@ -209,7 +206,7 @@ public class PointHistoryServiceImpl implements PointHistoryService {
 
     public void pointExists(int totalPoints) {
         if (totalPoints < 0) {
-            throw new RuntimeException("Total points cannot be negative");
+            throw new PointNotEnoughException("포인트는 음수가 될 수 없습니다.");
         }
 
     }

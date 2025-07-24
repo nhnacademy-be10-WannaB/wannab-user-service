@@ -1,11 +1,8 @@
 package shop.wannab.userservice.auth.service;
 
-import static shop.wannab.userservice.utils.JwtUtil.REFRESH_KEY;
-
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +22,7 @@ import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserRepository;
+import shop.wannab.userservice.utils.AuthCodeGenerator;
 import shop.wannab.userservice.utils.JwtUtil;
 import shop.wannab.userservice.utils.ResponseCode;
 
@@ -38,6 +36,7 @@ public class AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final UserRepository userRepository;
     private final DoorayMessageClient doorayMessageClient;
+    private static final String REFRESH_KEY = "refresh_token:";
 
     public TokenResponse login(TokenRequest tokenRequest) {
         log.info("Service: login");
@@ -51,7 +50,7 @@ public class AuthService {
         log.info("Service: paycoLogin");
         if (userRepository.existsByProviderId(paycoLoginRequest.providerId())) {
             User user = userRepository.findByProviderId(paycoLoginRequest.providerId()).get();
-            String token = (String) redisTemplate.opsForHash().get("refresh_token:", "1");
+            String token = (String) redisTemplate.opsForHash().get(REFRESH_KEY, "1");
             log.info("token: {}", token);
             return new Response<>(new PaycoLoginResponse(user.getUserId(), user.getRole().toString()),
                     ResponseCode.PAYCO_LOGIN_SUCESS, "로그인 성공 및 토큰 반환");
@@ -64,7 +63,7 @@ public class AuthService {
 
     public User buildUserByPaycoLoginRequest(PaycoLoginRequest paycoLoginRequest) {
         log.info("Service: buildUserByPaycoLoginRequest");
-        String token = (String) redisTemplate.opsForHash().get("refresh_token:", "1");
+        String token = (String) redisTemplate.opsForHash().get(REFRESH_KEY, "1");
         log.info("token: {}", token);
         return User.social().providerId(paycoLoginRequest.providerId())
                 .email(paycoLoginRequest.email())
@@ -74,7 +73,8 @@ public class AuthService {
     }
 
     public void unlockRequest(String userId) {
-        int code = ThreadLocalRandom.current().nextInt(100000, 1_000000);
+        AuthCodeGenerator authCodeGenerator = new AuthCodeGenerator();
+        int code = authCodeGenerator.generate6DigitCode();
         redisTemplate.opsForValue().set("UNLOCK_CODE:" + userId, code, 3, TimeUnit.MINUTES);
         doorayMessageClient.sendUnlockCode(SendMessageRequest.unlockCodeMessage(userId, code));
     }
@@ -86,7 +86,7 @@ public class AuthService {
         if (savedCode == null || !(savedCode.toString().equals(String.valueOf(request.authenticationCode())))) {
             return false;
         }
-        if (userRepository.existsByUserLoginId(request.userId())) {
+        if (!userRepository.existsByUserLoginId(request.userId())) {
             throw new UserNotFoundException(request.userId());
         }
         User user = userRepository.findByUserLoginId(request.userId()).get();

@@ -359,7 +359,7 @@ class UserServiceImplTest {
     void logout_success() {
         // given
         Long userId = 1L;
-        HashOperations<String, Object, Object> hashOperations = mock(HashOperations.class);
+        hashOperations = mock(HashOperations.class);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
 
         // when
