@@ -86,7 +86,7 @@ public class AuthService {
         if (savedCode == null || !(savedCode.toString().equals(String.valueOf(request.authenticationCode())))) {
             return false;
         }
-        if (userRepository.existsByUserLoginId(request.userId())) {
+        if (!userRepository.existsByUserLoginId(request.userId())) {
             throw new UserNotFoundException(request.userId());
         }
         User user = userRepository.findByUserLoginId(request.userId()).get();
