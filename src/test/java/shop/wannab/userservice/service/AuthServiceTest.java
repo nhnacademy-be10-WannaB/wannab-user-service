@@ -41,8 +41,10 @@ import shop.wannab.userservice.auth.service.AuthService;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
+import shop.wannab.userservice.user.domain.entity.UserGrade;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserRepository;
+import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.JwtUtil;
 import shop.wannab.userservice.utils.ResponseCode;
 
@@ -60,6 +62,9 @@ class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private DoorayMessageClient doorayMessageClient;
@@ -249,6 +254,7 @@ class AuthServiceTest {
                 .birth(request.birthday())
                 .phone(request.phone())
                 .build();
+
         ReflectionTestUtils.setField(mockUser, "userId", 1L);
 
         when(userRepository.existsByProviderId(request.providerId())).thenReturn(true);
