@@ -46,6 +46,7 @@ import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserGradeRepository;
 import shop.wannab.userservice.user.repository.UserRepository;
+import shop.wannab.userservice.user.service.PostSignupService;
 import shop.wannab.userservice.user.service.UserServiceImpl;
 import shop.wannab.userservice.utils.JwtUtil;
 
@@ -72,6 +73,8 @@ class UserServiceImplTest {
     private HashOperations<String, Object, Object> hashOperations;
     @Mock
     private EntityManager entityManager;
+    @Mock
+    private PostSignupService postSignupService;
 
     @BeforeEach
     void setUp() {
@@ -559,8 +562,6 @@ class UserServiceImplTest {
             return user;
         });
 
-        doNothing().when(entityManager).flush();
-        doNothing().when(entityManager).refresh(any(User.class));
 
         // when
         User result = userService.createUser(request);
@@ -569,9 +570,8 @@ class UserServiceImplTest {
         assertThat(result.getUserLoginId()).isEqualTo("newuser");
         assertThat(result.getUserId()).isEqualTo(100L);
 
-        // MQ와 Feign 호출 검증
-        then(rabbitTemplate).should().convertAndSend("wannab.user.exchange", "user.signup.event", "100");
-        then(cartClient).should().createCart(new CartCreateRequest(100L));
+        // then
+        verify(postSignupService).handlePostSignup(any(User.class));
     }
 
 
@@ -591,37 +591,37 @@ class UserServiceImplTest {
                 .hasMessageContaining("존재하는 아이디");
     }
 
-    @Test
-    @DisplayName("MQ 또는 CartClient 호출 중 예외 발생 시 FeignClientException 발생")
-    void createUser_feignClientFail() {
-        // given
-        UserCreateRequest request = new UserCreateRequest(
-                "mqfail", "pw", "이벤트실패", "fail@test.com", "010-9999-9999", LocalDate.of(1991, 1, 1)
-        );
-
-        UserGrade grade = new UserGrade();
-        given(userRepository.existsByUserLoginId("mqfail")).willReturn(false);
-        given(userGradeRepository.findByGradeName("Standard"))
-                .willReturn(Optional.of(grade));
-
-        given(userRepository.save(any(User.class))).willAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            ReflectionTestUtils.setField(user, "userId", 300L);
-            return user;
-        });
-
-        doNothing().when(entityManager).flush();
-        doNothing().when(entityManager).refresh(any(User.class));
-
-        // MQ에서 예외 발생하도록 설정
-        willThrow(new RuntimeException("MQ 실패")).given(rabbitTemplate)
-                .convertAndSend(anyString(), anyString(), anyString());
-
-        // when / then
-        assertThatThrownBy(() -> userService.createUser(request))
-                .isInstanceOf(FeignClientException.class)
-                .hasMessageContaining("MQ 실패");
-    }
+//    @Test
+//    @DisplayName("MQ 또는 CartClient 호출 중 예외 발생 시 FeignClientException 발생")
+//    void createUser_feignClientFail() {
+//        // given
+//        UserCreateRequest request = new UserCreateRequest(
+//                "mqfail", "pw", "이벤트실패", "fail@test.com", "010-9999-9999", LocalDate.of(1991, 1, 1)
+//        );
+//
+//        UserGrade grade = new UserGrade();
+//        given(userRepository.existsByUserLoginId("mqfail")).willReturn(false);
+//        given(userGradeRepository.findByGradeName("Standard"))
+//                .willReturn(Optional.of(grade));
+//
+//        given(userRepository.save(any(User.class))).willAnswer(invocation -> {
+//            User user = invocation.getArgument(0);
+//            ReflectionTestUtils.setField(user, "userId", 300L);
+//            return user;
+//        });
+//
+//        doNothing().when(entityManager).flush();
+//        doNothing().when(entityManager).refresh(any(User.class));
+//
+//        // MQ에서 예외 발생하도록 설정
+//        willThrow(new RuntimeException("MQ 실패")).given(rabbitTemplate)
+//                .convertAndSend(anyString(), anyString(), anyString());
+//
+//        // when / then
+//        assertThatThrownBy(() -> userService.createUser(request))
+//                .isInstanceOf(FeignClientException.class)
+//                .hasMessageContaining("MQ 실패");
+//    }
 
     @Test
     @DisplayName("Standard 등급이 존재하면 반환된다")

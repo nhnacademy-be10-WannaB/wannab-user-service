@@ -32,6 +32,7 @@ import shop.wannab.userservice.user.domain.entity.UserGrade;
 import shop.wannab.userservice.user.exception.RefreshTokenNotMatchException;
 import shop.wannab.userservice.user.exception.UserAlreadyExistsException;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
+import shop.wannab.userservice.user.mapper.UserMapper;
 import shop.wannab.userservice.user.repository.UserGradeRepository;
 import shop.wannab.userservice.user.repository.UserRepository;
 import shop.wannab.userservice.utils.JwtUtil;
@@ -45,12 +46,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserGradeRepository userGradeRepository;
-    private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
-    private final RabbitTemplate rabbitTemplate;
-    private final EntityManager entityManager;
+    private final PostSignupService postSignupService;
 
 
     @Override
@@ -60,28 +59,9 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
         }
 
-        User user = User.standard()
-                .password(userCreateDTO.password())
-                .userLoginId(userCreateDTO.userLoginId())
-                .name(userCreateDTO.name())
-                .email(userCreateDTO.email())
-                .phone(userCreateDTO.phone())
-                .birth(userCreateDTO.birth())
-                .userGrade(getStandardUserGrade())
-                .build();
-
+        User user = UserMapper.userCreateDtoToUser(userCreateDTO, getStandardUserGrade());
         userRepository.save(user);
-        entityManager.flush();
-        entityManager.refresh(user);
-
-        Long userIdToSend = user.getUserId();
-        try {
-            rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", String.valueOf(userIdToSend));
-            log.info("rabbitMq Producer");
-            cartClient.createCart(new CartCreateRequest(user.getUserId()));
-        } catch (Exception e) {
-            throw new FeignClientException(e.getMessage());
-        }
+        postSignupService.handlePostSignup(user);
         return user;
     }
 
@@ -118,26 +98,16 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userUpdateDTO.phone());
         user.setNickname(userUpdateDTO.nickname());
         user.setPassword(userUpdateDTO.password());
+
         userRepository.save(user);
 
-        return UserPageResponse.builder()
-                .username(user.getUserLoginId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .birth(user.getBirth())
-                .nickname(user.getNickname())
-                .password(user.getPassword())
-                .points(user.getPoints())
-                .build();
+        return UserMapper.UserToUserPageResponse(user);
     }
 
     @Override
     public void deleteUser(long userId) {
         log.info("Service: deleteUser");
-        if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException("해당하는 유저 없음");
-        }
+        CheckUserExistUser(userId);
         User user = userRepository.findById(userId).get();
         user.setState(State.DELETED);
     }
@@ -219,6 +189,12 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalStateException("기본 등급(Standard)을 찾을 수 없습니다."));
     }
 
+    @Override
+    public void CheckUserExistUser(long userId){
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("해당하는 유저 없음");
+        }
+    }
     @Override
     public Page<AdminPageUserResponse> readUserList(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
