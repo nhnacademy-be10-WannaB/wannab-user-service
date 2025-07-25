@@ -74,6 +74,7 @@ public class User {
     private Integer points;
 
     @NotNull
+    @Setter
     @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
     private Role role;
