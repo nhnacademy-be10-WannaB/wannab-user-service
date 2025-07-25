@@ -98,6 +98,55 @@ public class User {
     @JoinColumn(name = "grade_id")
     private UserGrade userGrade;
 
+    // 공용 기본값
+    private void initCommonFields(UserGrade userGrade,
+                                  String name,
+                                  String mail,
+                                  String phone,
+                                  LocalDate birth) {
+        this.nickname = "unknown";
+        this.creationAt = LocalDate.now();
+        this.lastLoginAt = null;
+        this.points = 0;
+        this.role = Role.USER;
+        this.state = State.ACTIVATE;
+        this.userGrade = userGrade;
+
+        this.name = name;
+        this.email = mail;
+        this.phone = phone;
+        this.birth = birth;
+    }
+
+    // 일반 회원가입
+    public User(UserGrade userGrade,
+                String password,
+                String userLoginId,
+                String name,
+                String email,
+                String phone,
+                LocalDate birth) {
+        this.userLoginId = userLoginId;
+        this.password = password;
+        this.providerId = null;
+        this.providerName = null;
+        initCommonFields(userGrade, name, email, phone, birth);
+    }
+
+    // 소셜 회원가입
+    public User(String providerId,
+                String providerName,
+                String name,
+                String email,
+                LocalDate birth,
+                UserGrade userGrade,
+                String phone) {
+        this.userLoginId = null;
+        this.password = null;
+        this.providerId = providerId;
+        this.providerName = providerName;
+        initCommonFields(userGrade, name, email, phone, birth);
+    }
 
     // 회원가입
     private User(UserCreateDTO userCreateDTO) {
