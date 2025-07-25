@@ -49,4 +49,6 @@ public interface UserService {
     void updateAdminUser(String loginId, AdminUserUpdateRequest adminUserUpdateRequest);
 
     void deleteAdminUser(String loginId);
+
+    void CheckUserExistUser(long userId);
 }
