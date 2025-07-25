@@ -20,8 +20,10 @@ import shop.wannab.userservice.auth.dto.response.TokenResponse;
 import shop.wannab.userservice.global.Response;
 import shop.wannab.userservice.user.domain.entity.State;
 import shop.wannab.userservice.user.domain.entity.User;
+import shop.wannab.userservice.user.domain.entity.UserGrade;
 import shop.wannab.userservice.user.exception.UserNotFoundException;
 import shop.wannab.userservice.user.repository.UserRepository;
+import shop.wannab.userservice.user.service.UserService;
 import shop.wannab.userservice.utils.AuthCodeGenerator;
 import shop.wannab.userservice.utils.JwtUtil;
 import shop.wannab.userservice.utils.ResponseCode;
@@ -37,6 +39,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final DoorayMessageClient doorayMessageClient;
     private static final String REFRESH_KEY = "refresh_token:";
+    private final UserService userService;
 
     public TokenResponse login(TokenRequest tokenRequest) {
         log.info("Service: login");
@@ -55,13 +58,13 @@ public class AuthService {
             return new Response<>(new PaycoLoginResponse(user.getUserId(), user.getRole().toString()),
                     ResponseCode.PAYCO_LOGIN_SUCESS, "로그인 성공 및 토큰 반환");
         } else {
-            User user = userRepository.save(buildUserByPaycoLoginRequest(paycoLoginRequest));
+            User user = userRepository.save(buildUserByPaycoLoginRequest(paycoLoginRequest, userService.getStandardUserGrade()));
             return new Response<>(new PaycoLoginResponse(user.getUserId(), user.getRole().toString()),
                     ResponseCode.PAYCO_SIGNUP_SUCESS, "회원가입 성공");
         }
     }
 
-    public User buildUserByPaycoLoginRequest(PaycoLoginRequest paycoLoginRequest) {
+    public User buildUserByPaycoLoginRequest(PaycoLoginRequest paycoLoginRequest, UserGrade userGrade) {
         log.info("Service: buildUserByPaycoLoginRequest");
         String token = (String) redisTemplate.opsForHash().get(REFRESH_KEY, "1");
         log.info("token: {}", token);
@@ -69,6 +72,7 @@ public class AuthService {
                 .email(paycoLoginRequest.email())
                 .phone(paycoLoginRequest.phone())
                 .birth(paycoLoginRequest.birthday())
+                .userGrade(userGrade)
                 .build();
     }
 
