@@ -66,14 +66,15 @@ public class AuthService {
 
     public User buildUserByPaycoLoginRequest(PaycoLoginRequest paycoLoginRequest, UserGrade userGrade) {
         log.info("Service: buildUserByPaycoLoginRequest");
-        String token = (String) redisTemplate.opsForHash().get(REFRESH_KEY, "1");
-        log.info("token: {}", token);
-        return User.social().providerId(paycoLoginRequest.providerId())
-                .email(paycoLoginRequest.email())
-                .phone(paycoLoginRequest.phone())
-                .birth(paycoLoginRequest.birthday())
-                .userGrade(userGrade)
-                .build();
+        return new User(
+                paycoLoginRequest.providerId(),
+                paycoLoginRequest.providerName(),
+                paycoLoginRequest.name(),
+                paycoLoginRequest.email(),
+                paycoLoginRequest.birthday(),
+                userGrade,
+                paycoLoginRequest.phone()
+                );
     }
 
     public void unlockRequest(String userId) {

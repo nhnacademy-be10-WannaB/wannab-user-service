@@ -277,18 +277,25 @@ class AuthServiceTest {
         // given
         PaycoLoginRequest request = createMockRequest();
 
-        User newUser = User.social()
-                .providerId(request.providerId())
-                .email(request.email())
-                .birth(request.birthday())
-                .phone(request.phone())
-                .build();
+        UserGrade userGrade = new UserGrade();
+
+        User newUser = new User(
+                request.providerId(),
+                request.providerName(),
+                request.name(),
+                request.email(),
+                request.birthday(),
+                userGrade,
+                request.phone()
+        );
+
+
         ReflectionTestUtils.setField(newUser, "userId", 2L);
 
         when(userRepository.existsByProviderId(request.providerId())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(newUser);
-        when(redisTemplate.opsForHash()).thenReturn(hashOperations);
-        when(hashOperations.get("refresh_token:", "1")).thenReturn("mock-token");
+//        when(redisTemplate.opsForHash()).thenReturn(hashOperations);
+//        when(hashOperations.get("refresh_token:", "1")).thenReturn("mock-token");
 
         // when
         Response<PaycoLoginResponse> response = authService.paycoLogin(request);
