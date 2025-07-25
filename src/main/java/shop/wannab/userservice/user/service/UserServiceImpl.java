@@ -5,17 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import shop.wannab.userservice.auth.dto.response.ReissueResponse;
 import shop.wannab.userservice.auth.dto.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
-import shop.wannab.userservice.user.client.CartClient;
-import shop.wannab.userservice.user.domain.dto.request.CartCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserCreateRequest;
 import shop.wannab.userservice.user.domain.dto.request.UserUpdateRequest;
 import shop.wannab.userservice.user.domain.dto.response.UserPageResponse;
@@ -39,11 +35,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserGradeRepository userGradeRepository;
-    private final CartClient cartClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String REFRESH_KEY = "refresh_token:";
     private final JwtUtil jwtUtil;
-    private final RabbitTemplate rabbitTemplate;
+    private final PostSignupService postSignupService;
 
 
     @Override
@@ -55,16 +50,8 @@ public class UserServiceImpl implements UserService {
 
         User user = UserMapper.userCreateDtoToUser(userCreateDTO, getStandardUserGrade());
         userRepository.save(user);
-        handlePostSignup(user);
+        postSignupService.handlePostSignup(user);
         return user;
-    }
-
-    @Async
-    @Override
-    public void handlePostSignup(User user){
-        rabbitTemplate.convertAndSend("wannab.user.exchange", "user.signup.event", String.valueOf(user.getUserId()));
-        log.info("rabbitMq Producer");
-        cartClient.createCart(new CartCreateRequest(user.getUserId()));
     }
 
     @Override

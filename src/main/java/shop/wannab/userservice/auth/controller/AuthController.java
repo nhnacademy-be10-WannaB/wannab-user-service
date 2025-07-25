@@ -54,6 +54,7 @@ public class AuthController {
         log.info("Controller: createUser");
         User user = userService.createUser(userCreateDTO);
         pointHistoryService.createSignupPoints(user);
+        log.info("Controller: createUser successful");
         return new Response<>(null, ResponseCode.SUCCESS, null);
     }
 

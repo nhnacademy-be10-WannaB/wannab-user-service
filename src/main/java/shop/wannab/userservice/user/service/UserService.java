@@ -1,7 +1,6 @@
 package shop.wannab.userservice.user.service;
 
 import java.util.List;
-import org.springframework.scheduling.annotation.Async;
 import shop.wannab.userservice.auth.dto.response.ReissueResponse;
 import shop.wannab.userservice.auth.dto.response.UserResponse;
 import shop.wannab.userservice.point.domain.dto.request.PointUpdateDTO;
@@ -13,9 +12,6 @@ import shop.wannab.userservice.user.domain.entity.UserGrade;
 
 public interface UserService {
     User createUser(UserCreateRequest userCreateDTO);
-
-    @Async
-    void handlePostSignup(User user);
 
     User readUser(long userId);
 
