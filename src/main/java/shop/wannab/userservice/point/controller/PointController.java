@@ -42,8 +42,8 @@ public class PointController {
      */
     @GetMapping("/api/users/points")
     public ResponseEntity<Integer> readPoints(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId) {
-        log.info("Controller: readPoints");
         int points = userService.readPoint(userId);
+        log.info("action=readPoints, userId={}, points={}, message=\"회원 포인트 조회 완료\"", userId, points);
         return ResponseEntity.ok(points);
     }
 
@@ -56,8 +56,8 @@ public class PointController {
     @PostMapping("/api/users/points")
     public ResponseEntity<Void> updatePoint(@RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId,
                                             @RequestBody @Valid PointUpdateDTO pointUpdateDTO) {
-        log.info("Controller: updatePoint");
         userService.updatePoint(userId, pointUpdateDTO);
+        log.info("action=updatePoint, userId={}, message=\"회원 포인트 수정 완료\"", userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -72,8 +72,8 @@ public class PointController {
             @RequestHeader(HeaderUtil.HEADER_ID_NAME) Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        log.info("Controller: readPointHistory");
         Page<PointHistoryResponse> pointHistories = pointHistoryService.readPointHistories(userId, page, size);
+        log.info("action=readPointHistory, userId={}, page={}, size={}, totalElements={}, message=\"포인트 내역 조회 완료\"", userId, page, size, pointHistories.getTotalElements());
         return ResponseEntity.ok(PageResponse.from(pointHistories));
     }
 
@@ -85,6 +85,7 @@ public class PointController {
     @PostMapping("/api/users/points/orders/{order-id}/cancel")
     public void cancleOrderPointProcess(@PathVariable("order-id") Long orderId) {
         pointHistoryService.cancel(orderId);
+        log.info("action=cancleOrderPointProcess, orderId={}, message=\"결제 취소 - 포인트 반환 처리 완료\"", orderId);
     }
 
     /**
@@ -97,6 +98,7 @@ public class PointController {
     public void refundPoint(@RequestParam("order-id") Long orderId,
                             @RequestParam("amount") int refundPoint) {
         pointHistoryService.refund(orderId, refundPoint);
+        log.info("action=refundPoint, orderId={}, refundAmount={}, message=\"환불 - 포인트 환불 및 적립 포인트 차감 처리 완료\"", orderId, refundPoint);
     }
 
     /**
@@ -108,8 +110,8 @@ public class PointController {
     @PutMapping("/api/reward-rates")
     public ResponseEntity<PointPolicy> updatePointPolicy(@RequestHeader(HeaderUtil.HEADER_ROLE_NAME) Role userRole,
                                                          @RequestBody @Valid PointPolicyUpdateDTO pointPolicyUpdateDTO) {
-        log.info("Controller: updatePointPolicy");
         PointPolicy pointPolicy = pointPolicyService.updatePointPolicy(userRole, pointPolicyUpdateDTO);
+        log.info("action=updatePointPolicy, userRole={}, policyId={}, message=\"포인트 정책 수정 완료\"", userRole, pointPolicy.getId());
         return ResponseEntity.ok(pointPolicy);
     }
 
@@ -122,9 +124,9 @@ public class PointController {
     @PostMapping("/api/reward-rates")
     public ResponseEntity<PointPolicy> createPointPolicy(@RequestHeader(HeaderUtil.HEADER_ROLE_NAME) Role userRole,
                                                          @RequestBody PointPolicyCreateRequest pointPolicyCreateRequest) {
-        log.info("Controller: createPointPolicy");
         PointPolicy pointPolicy = pointPolicyService.createPointPolicy(userRole, pointPolicyCreateRequest);
         URI uri = URI.create("/api/reward-rates");
+        log.info("action=createPointPolicy, userRole={}, policyId={}, message=\"포인트 정책 생성 완료\"", userRole, pointPolicy.getId());
         return ResponseEntity.created(uri).body(pointPolicy);
     }
 
@@ -137,8 +139,8 @@ public class PointController {
     @GetMapping("/api/reward-rates")
     public ResponseEntity<List<PointPolicy>> readPointPolicy(
             @RequestHeader(HeaderUtil.HEADER_ROLE_NAME) Role userRole) {
-        log.info("Controller: readPointPolicy");
         List<PointPolicy> pointPolicyList = pointPolicyService.readPointPolicies(userRole);
+        log.info("action=readPointPolicy, userRole={}, policyCount={}, message=\"포인트 정책 조회 완료\"", userRole, pointPolicyList.size());
         return ResponseEntity.ok(pointPolicyList);
     }
 
@@ -148,6 +150,7 @@ public class PointController {
     @PostMapping("/api/points/reviews")
     public ResponseEntity<Void> createReviewPoints(@RequestParam Long userId) {
         pointHistoryService.createReviewPoints(userId);
+        log.info("action=createReviewPoints, userId={}, message=\"리뷰 작성 시 포인트 적립 및 내역 생성 완료\"", userId);
         return ResponseEntity.ok().build();
     }
 
