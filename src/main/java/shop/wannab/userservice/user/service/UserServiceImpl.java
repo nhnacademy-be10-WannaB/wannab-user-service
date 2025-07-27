@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(UserCreateRequest userCreateDTO) {
-        log.info("Service: createUser");
+        log.info("action=createUser, userLoginId={}, message=\"사용자 생성 시작\"", userCreateDTO.userLoginId());
         if (userRepository.existsByUserLoginId(userCreateDTO.userLoginId())) {
             throw new UserAlreadyExistsException("존재하는 아이디로 회원가입 요청함");
         }
@@ -62,21 +62,25 @@ public class UserServiceImpl implements UserService {
         User user = UserMapper.userCreateDtoToUser(userCreateDTO, getStandardUserGrade());
         userRepository.save(user);
         postSignupService.handlePostSignup(user);
+        log.info("action=createUser, userId={}, message=\"사용자 생성 완료\"", user.getUserId());
         return user;
     }
 
     @Override
     public User readUser(long userId) {
-        log.info("Service: readUser");
-        return userRepository.findById(userId)
+        log.info("action=readUser, userId={}, message=\"사용자 정보 조회 시작\"", userId);
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
+        log.info("action=readUser, userId={}, message=\"사용자 정보 조회 완료\"", userId);
+        return user;
     }
 
     @Override
     public UserPageResponse readUserPageResponse(long userId) {
+        log.info("action=readUserPageResponse, userId={}, message=\"사용자 페이지 정보 조회 시작\"", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당하는 유저 없음"));
-        return UserPageResponse.builder()
+        UserPageResponse response = UserPageResponse.builder()
                 .username(user.getUserLoginId())
                 .name(user.getName())
                 .email(user.getEmail())
@@ -87,11 +91,13 @@ public class UserServiceImpl implements UserService {
                 .points(user.getPoints())
                 .grade(user.getUserGrade().getGradeName())
                 .build();
+        log.info("action=readUserPageResponse, userId={}, message=\"사용자 페이지 정보 조회 완료\"", userId);
+        return response;
     }
 
     @Override
     public UserPageResponse updateUser(long userId, UserUpdateRequest userUpdateDTO) {
-        log.info("Service: updateUser");
+        log.info("action=updateUser, userId={}, message=\"사용자 정보 업데이트 시작\"", userId);
         User user = readUser(userId);
         user.setName(userUpdateDTO.name());
         user.setEmail(userUpdateDTO.email());
@@ -101,39 +107,47 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-        return UserMapper.UserToUserPageResponse(user);
+        UserPageResponse response = UserMapper.UserToUserPageResponse(user);
+        log.info("action=updateUser, userId={}, message=\"사용자 정보 업데이트 완료\"", userId);
+        return response;
     }
 
     @Override
     public void deleteUser(long userId) {
-        log.info("Service: deleteUser");
+        log.info("action=deleteUser, userId={}, message=\"사용자 삭제 시작\"", userId);
         CheckUserExistUser(userId);
         User user = userRepository.findById(userId).get();
         user.setState(State.DELETED);
+        log.info("action=deleteUser, userId={}, message=\"사용자 삭제 완료\"", userId);
     }
 
     @Override
     public int readPoint(long userId) {
-        log.info("Service: readPoint");
-        return readUser(userId).getPoints();
+        log.info("action=readPoint, userId={}, message=\"포인트 조회 시작\"", userId);
+        int points = readUser(userId).getPoints();
+        log.info("action=readPoint, userId={}, points={}, message=\"포인트 조회 완료\"", userId, points);
+        return points;
     }
 
     @Override
     public void updatePoint(long userId, PointUpdateDTO pointUpdateDTO) {
-        log.info("Service: updatePoint");
+        log.info("action=updatePoint, userId={}, amount={}, message=\"포인트 업데이트 시작\"", userId, pointUpdateDTO.amount());
         readUser(userId).setPoints(pointUpdateDTO.amount());
+        log.info("action=updatePoint, userId={}, amount={}, message=\"포인트 업데이트 완료\"", userId, pointUpdateDTO.amount());
     }
 
     @Override
     public boolean existsUser(long userId) {
-        log.info("Service: existsUser");
-        return userRepository.existsById(userId);
+        log.info("action=existsUser, userId={}, message=\"사용자 존재 여부 확인 시작\"", userId);
+        boolean exists = userRepository.existsById(userId);
+        log.info("action=existsUser, userId={}, exists={}, message=\"사용자 존재 여부 확인 완료\"", userId, exists);
+        return exists;
     }
 
 
     @Override
     public ReissueResponse reissueToken(String refreshToken) {
-        log.info("Service: reissueToken");
+        log.info("action=reissueToken, message=\"토큰 재발급 시작\"");
         Claims claims = jwtUtil.parseToken(refreshToken);
         Long userId = claims.get("userId", Long.class);
         String role = claims.get("role", String.class);
@@ -145,22 +159,28 @@ public class UserServiceImpl implements UserService {
         }
 
         String newAccessToken = jwtUtil.createAccessToken(userId, role);
-        return new ReissueResponse(newAccessToken);
+        ReissueResponse response = new ReissueResponse(newAccessToken);
+        log.info("action=reissueToken, message=\"토큰 재발급 완료\"");
+        return response;
     }
 
     @Override
     public void logout(long userId) {
-        log.info("Service: logout");
+        log.info("action=logout, userId={}, message=\"로그아웃 시작\"", userId);
         redisTemplate.opsForHash().delete(REFRESH_KEY, String.valueOf(userId));
+        log.info("action=logout, userId={}, message=\"로그아웃 완료\"", userId);
     }
 
     @Override
     public List<Long> birthUserList(int month) {
-        log.info("Service: birthUserList");
+        log.info("action=birthUserList, month={}, message=\"생일 사용자 목록 조회 시작\"", month);
         if (month < 1 || month > 12) {
+            log.warn("action=birthUserList, month={}, message=\"유효하지 않은 월 입력\"", month);
             throw new IllegalArgumentException("월(month)은 1~12 사이여야 합니다.");
         }
-        return userRepository.findUserIdsByBirthMonth(month);
+        List<Long> userIds = userRepository.findUserIdsByBirthMonth(month);
+        log.info("action=birthUserList, month={}, userCount={}, message=\"생일 사용자 목록 조회 완료\"", month, userIds.size());
+        return userIds;
     }
 
     @Override

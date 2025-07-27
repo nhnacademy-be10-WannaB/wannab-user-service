@@ -42,17 +42,24 @@ public class AuthService {
     private final UserService userService;
 
     public TokenResponse login(TokenRequest tokenRequest) {
-        log.info("Service: login");
+        log.info("action=login, userId={}, role={}, message=\"로그인 서비스 시작\"", tokenRequest.userId(), tokenRequest.role());
+
         String accessToken = jwtUtil.createAccessToken(tokenRequest.userId(), tokenRequest.role());
         String refreshToken = jwtUtil.createRefreshToken(tokenRequest.userId(), tokenRequest.role());
         redisTemplate.opsForHash().put(REFRESH_KEY, String.valueOf(tokenRequest.userId()), refreshToken);
+        log.debug("action=login, userId={}, message=\"Redis에 리프레시 토큰 저장 완료\"", tokenRequest.userId());
+
+        log.info("action=login, userId={}, message=\"로그인 서비스 완료: 토큰 발급\"", tokenRequest.userId());
         return new TokenResponse(accessToken, refreshToken);
     }
 
     public Response<PaycoLoginResponse> paycoLogin(PaycoLoginRequest paycoLoginRequest) {
-        log.info("Service: paycoLogin");
+        log.info("action=paycoLogin, providerId={}, message=\"페이코 로그인/회원가입 서비스 시작\"", paycoLoginRequest.providerId());
+
         if (userRepository.existsByProviderId(paycoLoginRequest.providerId())) {
             User user = userRepository.findByProviderId(paycoLoginRequest.providerId()).get();
+            log.debug("action=paycoLogin, providerId={}, userId={}, message=\"기존 페이코 사용자 발견\"", paycoLoginRequest.providerId(), user.getUserId());
+
             String token = (String) redisTemplate.opsForHash().get(REFRESH_KEY, "1");
             log.info("token: {}", token);
             return new Response<>(new PaycoLoginResponse(user.getUserId(), user.getRole().toString()),
@@ -65,7 +72,10 @@ public class AuthService {
     }
 
     public User buildUserByPaycoLoginRequest(PaycoLoginRequest paycoLoginRequest, UserGrade userGrade) {
-        log.info("Service: buildUserByPaycoLoginRequest");
+        log.info("action=buildUserByPaycoLoginRequest, providerId={}, name=\"{}\", message=\"페이코 로그인 정보 기반 사용자 객체 생성 시작\"", paycoLoginRequest.providerId(), paycoLoginRequest.name());
+
+        log.info("action=buildUserByPaycoLoginRequest, providerId={}, name=\"{}\", message=\"사용자 객체 생성 완료\"", paycoLoginRequest.providerId(), paycoLoginRequest.name());
+
         return new User(
                 paycoLoginRequest.providerId(),
                 paycoLoginRequest.providerName(),
@@ -78,13 +88,21 @@ public class AuthService {
     }
 
     public void unlockRequest(String userId) {
+        log.info("action=unlockRequest, userId=\"{}\", message=\"계정 잠금 해제 코드 요청 서비스 시작\"", userId);
+
         AuthCodeGenerator authCodeGenerator = new AuthCodeGenerator();
         int code = authCodeGenerator.generate6DigitCode();
         redisTemplate.opsForValue().set("UNLOCK_CODE:" + userId, code, 3, TimeUnit.MINUTES);
+        log.debug("action=unlockRequest, userId=\"{}\", code={}, expiresInMinutes=3, message=\"Redis에 잠금 해제 코드 저장 완료\"", userId, code);
+
         doorayMessageClient.sendUnlockCode(SendMessageRequest.unlockCodeMessage(userId, code));
+        log.info("action=unlockRequest, userId=\"{}\", message=\"계정 잠금 해제 코드 요청 서비스 완료\"", userId);
+
     }
 
     public boolean unlock(UnlockRequest request) {
+        log.info("action=unlock, userId=\"{}\", message=\"계정 잠금 해제 검증 서비스 시작\"", request.userId());
+
         String key = "UNLOCK_CODE:" + request.userId();
         Object savedCode = redisTemplate.opsForValue().get(key);
 
@@ -98,16 +116,27 @@ public class AuthService {
         user.setState(State.ACTIVATE);
 
         redisTemplate.delete(key);
+        log.info("action=unlock, userId=\"{}\", message=\"계정 잠금 해제 검증 서비스 완료: 성공\"", request.userId());
+
         return true;
     }
 
     public TokenPayloadResponse getTokenPayload(TokenPayloadRequest tokenPayloadRequest) {
+        log.info("action=getTokenPayload, message=\"토큰 페이로드 추출 서비스 시작\"");
+
         Claims claims = jwtUtil.parseToken(tokenPayloadRequest.token());
+        log.info("action=getTokenPayload, userIdFromToken={}, roleFromToken={}, message=\"토큰 페이로드 추출 서비스 완료\"",
+                claims.getSubject(), claims.get("role"));
+
         return new TokenPayloadResponse(claims);
     }
 
     public void updateLastLogin(Long userId) {
+        log.info("action=updateLastLogin, userId={}, message=\"최근 로그인 시간 업데이트 서비스 시작\"", userId);
+
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         user.setLastLoginAt(LocalDate.now());
+        log.info("action=updateLastLogin, userId={}, newLastLoginAt={}, message=\"최근 로그인 시간 업데이트 서비스 완료\"", userId, user.getLastLoginAt());
+
     }
 }
