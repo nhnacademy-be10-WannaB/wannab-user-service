@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.wannab.userservice.address.domain.dto.request.UserAddressCreateRequest;
-import shop.wannab.userservice.address.domain.dto.response.UserAddressResponse;
 import shop.wannab.userservice.address.domain.dto.request.UserAddressUpdateRequest;
+import shop.wannab.userservice.address.domain.dto.response.UserAddressResponse;
 import shop.wannab.userservice.address.domain.entity.UserAddress;
 import shop.wannab.userservice.address.exception.AlreadyExistsUserAddressException;
 import shop.wannab.userservice.address.exception.UserAddressFullException;
@@ -29,8 +29,9 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional(readOnly = true)
     public List<UserAddressResponse> findByUserId(Long userId) {
-        log.info("Service: findByUserId");
+        log.info("action=findByUserId, userId={}, message=\"유저아이디로 주소 리스트 찾기 시작\"", userId);
         List<UserAddress> userAddresses = userAddressRepository.findAllByUser(userService.readUser(userId));
+        log.info("action=findByUserId, userId={}, message=\"유저아이디로 주소 리스트 찾기 완료\"", userId);
         return userAddresses.stream()
                 .map(userAddress -> UserAddressResponse.builder()
                         .addressId(userAddress.getAddressId())
@@ -44,11 +45,14 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional(readOnly = true)
     public UserAddressResponse findByUserIdAndAddressId(Long userId, Long addressId) {
-        log.info("Service: findByUserIdAndAddressId");
+        log.info("action=findByUserIdAndAddressId, userId={}, addressId={}, message=\"유저아이디로 주소 찾기 시작\"", userId,
+                addressId);
         User user = userService.readUser(userId);
 
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);
+        log.info("action=findByUserIdAndAddressId, userId={}, addressId={}, message=\"유저아이디로 주소 찾기 완료\"", userId,
+                addressId);
 
         return UserAddressResponse.builder()
                 .addressId(entity.getAddressId())
@@ -61,7 +65,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional
     public void save(Long userId, UserAddressCreateRequest request) {
-        log.info("Service: save");
+        log.info("action=save, userId={}, message=\"주소 생성 시작\"", userId);
         User user = userService.readUser(userId);
         long addressCount = userAddressRepository.countByUser(user);
         if (addressCount >= 10) {
@@ -76,13 +80,14 @@ public class UserAddressServiceImpl implements UserAddressService {
                 .user(userService.readUser(userId))
                 .build();
         userAddressRepository.save(entity);
+        log.info("action=save, userId={}, message=\"주소 생성 완료\"", userId);
 
     }
 
     @Override
     @Transactional
     public void update(Long userId, Long addressId, UserAddressUpdateRequest request) {
-        log.info("Service: update");
+        log.info("action=update, userId={}, addressId={}, message=\"주소 수정 시작\"", userId, addressId);
         User user = userService.readUser(userId);
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);
@@ -92,16 +97,18 @@ public class UserAddressServiceImpl implements UserAddressService {
         entity.setDetailAddress(request.getDetailAddress());
 
         userAddressRepository.save(entity);
+        log.info("action=update, userId={}, addressId={}, message=\"주소 수정 완료\"", userId, addressId);
     }
 
     @Override
     @Transactional
     public void deleteByUserIdAndAddressId(Long userId, Long addressId) {
-        log.info("Service: deleteByUserIdAndAddressId");
+        log.info("action=deleteByUserIdAndAddressId, userId={}, addressId={}, message=\"주소 삭제 시작\"", userId, addressId);
         User user = userService.readUser(userId);
         UserAddress entity = userAddressRepository.findByUserAndAddressId(user, addressId)
                 .orElseThrow(UserAddressNotFoundException::new);
 
         userAddressRepository.delete(entity);
+        log.info("action=deleteByUserIdAndAddressId, userId={}, addressId={}, message=\"주소 삭제 완료\"", userId, addressId);
     }
 }

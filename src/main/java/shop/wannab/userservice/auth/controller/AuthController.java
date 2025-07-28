@@ -42,7 +42,6 @@ public class AuthController {
 
     @PostMapping("/reissue")
     public ResponseEntity<ReissueResponse> refreshAccessToken(@RequestBody ReissueRequest reissueRequest) {
-        log.info("Controller: refreshAccessToken");
 
         ReissueResponse reissueResponse = userService.reissueToken(reissueRequest.refreshToken());
 
@@ -53,11 +52,11 @@ public class AuthController {
 
     @PostMapping("/signup")
     public Response<Void> createUser(@RequestBody @Valid UserCreateRequest userCreateDTO) {
-        log.info("Controller: createUser");
         User user = userService.createUser(userCreateDTO);
         pointHistoryService.createSignupPoints(user);
 
-        log.info("action=createUser, userId={}, userLoginId=\"{}\", message=\"사용자 회원가입 완료 및 포인트 적립\"", user.getUserId(), user.getUserLoginId());
+        log.info("action=createUser, userId={}, userLoginId=\"{}\", message=\"사용자 회원가입 완료 및 포인트 적립\"", user.getUserId(),
+                user.getUserLoginId());
 
         return new Response<>(null, ResponseCode.SUCCESS, null);
     }
@@ -72,7 +71,6 @@ public class AuthController {
 
     @PostMapping("/login/payco")
     public ResponseEntity<Response<PaycoLoginResponse>> paycoLogin(@RequestBody PaycoLoginRequest paycoLoginRequest) {
-        log.info("Controller: paycoLogin");
         Response<PaycoLoginResponse> response = authService.paycoLogin(paycoLoginRequest);
 
         log.info("action=paycoLogin, providerId=\"{}\", message=\"페이코 로그인 완료\"", paycoLoginRequest.providerId());
@@ -82,7 +80,6 @@ public class AuthController {
 
     @GetMapping("/users")
     public UserResponse login(@RequestParam String loginId) {
-        log.info("Controller: login");
 
         log.info("action=login, loginId=\"{}\", message=\"사용자 정보 조회 완료 (로그인 목적)\"", loginId);
 
@@ -127,7 +124,6 @@ public class AuthController {
 
     @PutMapping("/lastLogin")
     public ResponseEntity<Void> updateLastLogin(@RequestParam("userId") Long userId) {
-        log.info("Controller: updateLastLogin");
         authService.updateLastLogin(userId);
 
         log.info("action=updateLastLogin, userId={}, message=\"최근 로그인 시간 업데이트 완료\"", userId);
