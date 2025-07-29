@@ -2,6 +2,8 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="UNKNOWN_SERVICE"/>
+
     <property name="LOG_PATH" value="/app/logs"/>
     <property name="APP_NAME" value="user-service"/>
     <property name="VERSION" value="${spring.profiles.active:-unknown}"/>
@@ -29,9 +31,15 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="WEBHOOK" class="shop.wannab.userservice.global.alert.WebhookAppender">
+        <webhookUrl>https://nhnacademy.dooray.com/services/3204376758577275363/4094430404194879315/qtRDdsQ5TWuqQrXgavQE5g</webhookUrl>
+        <minLevel>ERROR</minLevel>
+    </appender>
+
     <springProfile name="v1,v2">
         <root level="INFO">
             <appender-ref ref="ROLLING_FILE"/>
+            <appender-ref ref="WEBHOOK"/>
         </root>
     </springProfile>
 
